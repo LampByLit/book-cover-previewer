@@ -49,23 +49,25 @@ export const UI = () => {
 
   return (
     <>
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-20 pointer-events-none">
+      {/* Header - hidden on mobile when sidebar is open */}
+      <header className={`fixed top-0 left-0 right-0 z-20 pointer-events-none transition-opacity duration-300 ${
+        sidebarVisible ? "md:opacity-100 opacity-0" : "opacity-100"
+      }`}>
         <div className="flex items-center justify-between p-4 md:p-6">
           <div className="w-8 md:w-16" /> {/* Spacer for centering */}
-          <h1 className="text-black text-xl md:text-3xl font-bold tracking-wider">
+          <h1 className="text-black text-xl md:text-3xl font-bold tracking-wider whitespace-nowrap">
             MIXTAPE HYPERBOREA
           </h1>
           <a
             href="https://lampbylit.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="pointer-events-auto"
+            className="pointer-events-auto shrink-0"
           >
             <img
               src="https://lampbylit.com/magazine/wp-content/uploads/2020/12/logo01.png"
               alt="LampByLit"
-              className="h-12 md:h-16 w-auto"
+              className="h-12 md:h-16 w-auto object-contain"
             />
           </a>
         </div>
