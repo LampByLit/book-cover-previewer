@@ -1,30 +1,12 @@
 import { atom, useAtom } from "jotai";
 import { useEffect, useState } from "react";
 
-// Book cover designs - single wraparound images (front + spine + back)
-const covers = [
-  "1.png",
-  "2.png",
-  "A0.png",
-  "A1.png",
-  "A2.png",
-  "A3.png",
-  "A4.png",
-  "B0.png",
-  "B1.png",
-  "B2.png",
-  "C0.png",
-  "C1.png",
-  "C3.png",
-  "C4.png",
-  "C5.png",
-  "C6.png",
-  "D0.png",
-  "D1.png",
-  "D2.png",
-  "D3.png",
-  "D4.png",
-];
+// Automatically detect all images in the covers directory
+// Vite's import.meta.glob returns modules, we extract just the paths
+const coverModules = import.meta.glob('/public/covers/*.{png,jpg,jpeg,webp}', { eager: true, as: 'url' });
+const covers = Object.keys(coverModules)
+  .map(path => path.replace('/public/covers/', ''))
+  .sort(); // Sort alphabetically for consistent ordering
 
 export const coverAtom = atom(0); // Current selected cover index
 export const bookOpenAtom = atom(false); // Book open/closed state
