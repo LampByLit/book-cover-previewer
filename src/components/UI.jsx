@@ -51,9 +51,9 @@ export const UI = () => {
     <>
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-20 pointer-events-none">
-        <div className="flex items-center justify-between p-6">
-          <div className="w-16" /> {/* Spacer for centering */}
-          <h1 className="text-white text-3xl font-bold tracking-wider">
+        <div className="flex items-center justify-between p-4 md:p-6">
+          <div className="w-8 md:w-16" /> {/* Spacer for centering */}
+          <h1 className="text-white text-xl md:text-3xl font-bold tracking-wider">
             MIXTAPE HYPERBOREA
           </h1>
           <a
@@ -65,7 +65,7 @@ export const UI = () => {
             <img
               src="https://lampbylit.com/magazine/wp-content/uploads/2020/12/logo01.png"
               alt="LampByLit"
-              className="h-16 w-auto"
+              className="h-12 md:h-16 w-auto"
             />
           </a>
         </div>
@@ -74,18 +74,18 @@ export const UI = () => {
       {/* Sidebar Toggle Button */}
       <button
         onClick={() => setSidebarVisible(!sidebarVisible)}
-        className="fixed left-4 top-1/2 -translate-y-1/2 z-30 pointer-events-auto bg-gray-800/80 hover:bg-gray-700/90 text-white px-3 py-6 rounded-r-lg transition-all duration-300"
-        style={{ left: sidebarVisible ? "320px" : "4px" }}
+        className="fixed top-1/2 -translate-y-1/2 z-30 pointer-events-auto bg-gray-800/80 hover:bg-gray-700/90 text-white px-2 md:px-3 py-4 md:py-6 rounded-r-lg transition-all duration-300 text-sm md:text-base"
+        style={{ left: sidebarVisible ? "min(300px, 80vw)" : "4px" }}
       >
         {sidebarVisible ? "◀" : "▶"}
       </button>
 
       {/* Thumbnail Sidebar */}
       <aside
-        className={`fixed left-0 top-0 h-full z-10 bg-gray-900/90 backdrop-blur-sm transition-transform duration-300 ${
+        className={`fixed left-0 top-0 h-full z-10 bg-white shadow-2xl transition-transform duration-300 ${
           sidebarVisible ? "translate-x-0" : "-translate-x-full"
         }`}
-        style={{ width: "300px" }}
+        style={{ width: "min(300px, 80vw)" }}
       >
         <div className="h-full overflow-y-auto pt-28 pb-8 px-4">
           <div className="space-y-4">
@@ -95,8 +95,8 @@ export const UI = () => {
                 onClick={() => handleCoverChange(index)}
                 className={`w-full pointer-events-auto transition-all duration-300 rounded-lg overflow-hidden ${
                   selectedCover === index
-                    ? "ring-4 ring-white shadow-xl"
-                    : "ring-2 ring-gray-600 hover:ring-gray-400"
+                    ? "ring-4 ring-blue-500 shadow-xl"
+                    : "ring-2 ring-gray-300 hover:ring-gray-500"
                 }`}
               >
                 <img
@@ -111,10 +111,10 @@ export const UI = () => {
       </aside>
 
       {/* Book Controls */}
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
+      <div className="fixed bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
         <button
           onClick={() => setBookOpen(!bookOpen)}
-          className="pointer-events-auto bg-gray-800/80 hover:bg-gray-700/90 text-white px-8 py-3 rounded-full transition-all duration-300 font-medium"
+          className="pointer-events-auto bg-gray-800/80 hover:bg-gray-700/90 text-white px-6 md:px-8 py-2 md:py-3 rounded-full transition-all duration-300 font-medium text-sm md:text-base"
         >
           {bookOpen ? "Close Book" : "Open Book"}
         </button>

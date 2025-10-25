@@ -10,8 +10,8 @@ function App() {
       <UI />
       <Loader />
       <Canvas shadows camera={{
-          position: [-0.5, 1, window.innerWidth > 800 ? 4 : 9],
-          fov: 45,
+          position: [-0.5, 1, window.innerWidth > 800 ? 4 : 6],
+          fov: window.innerWidth > 800 ? 45 : 60,
         }}>
         <group position-y={0}>
           <Suspense fallback={null}>
