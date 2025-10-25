@@ -23,7 +23,8 @@ const COVER_THICKNESS = 0.008; // Thin cover material
 const COVER_TOTAL_WIDTH = 2.168; // 10.842" * 0.2
 const COVER_IMAGE_HEIGHT = 1.65; // 8.25" * 0.2
 
-const easingFactor = 0.08;
+const easingFactor = 0.12; // Smoother, more responsive
+const scaleEasing = 0.08; // For subtle scaling effect
 
 // Preload all cover textures
 covers.forEach((cover) => {
@@ -66,13 +67,14 @@ export const Book = ({ ...props }) => {
   backTexture.offset.set(frontUVWidth + spineUVWidth, 0);
   backTexture.needsUpdate = true;
 
-  // Animate book opening/closing
+  // Animate book opening/closing with enhanced organic movement
   // Spine runs along Y axis (vertical), covers rotate around Y axis
   useFrame((_, delta) => {
     const targetAngle = bookOpen ? degToRad(120) : 0;
     
-    // Smooth rotation for front and back covers around Y axis (spine hinge)
+    // Smooth rotation for front cover with subtle stagger
     if (frontCoverRef.current) {
+      // Main rotation
       easing.dampAngle(
         frontCoverRef.current.rotation,
         "y",
@@ -80,14 +82,72 @@ export const Book = ({ ...props }) => {
         easingFactor,
         delta
       );
+      
+      // Subtle scale effect for depth
+      const targetScale = bookOpen ? 1.02 : 1;
+      easing.damp(
+        frontCoverRef.current.scale,
+        "x",
+        targetScale,
+        scaleEasing,
+        delta
+      );
+      
+      // Slight arc/lift effect (position shift for depth)
+      easing.damp(
+        frontCoverRef.current.position,
+        "x",
+        bookOpen ? -0.03 : 0,
+        easingFactor,
+        delta
+      );
+      
+      // Subtle page curl on X axis
+      easing.dampAngle(
+        frontCoverRef.current.rotation,
+        "x",
+        bookOpen ? degToRad(-2) : 0,
+        easingFactor * 0.7,
+        delta
+      );
     }
-
+    
+    // Smooth rotation for back cover with subtle stagger (slightly delayed feel)
     if (backCoverRef.current) {
+      // Main rotation
       easing.dampAngle(
         backCoverRef.current.rotation,
         "y",
         bookOpen ? -targetAngle / 2 : 0,
-        easingFactor,
+        easingFactor * 0.95, // Slightly slower for stagger effect
+        delta
+      );
+      
+      // Subtle scale effect for depth
+      const targetScale = bookOpen ? 1.02 : 1;
+      easing.damp(
+        backCoverRef.current.scale,
+        "x",
+        targetScale,
+        scaleEasing,
+        delta
+      );
+      
+      // Slight arc/lift effect (position shift for depth)
+      easing.damp(
+        backCoverRef.current.position,
+        "x",
+        bookOpen ? -0.03 : 0,
+        easingFactor * 0.95,
+        delta
+      );
+
+      // Subtle page curl on X axis
+      easing.dampAngle(
+        backCoverRef.current.rotation,
+        "x",
+        bookOpen ? degToRad(2) : 0,
+        easingFactor * 0.7,
         delta
       );
     }
