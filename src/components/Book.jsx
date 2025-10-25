@@ -10,16 +10,18 @@ import {
 import { degToRad } from "three/src/math/MathUtils.js";
 import { coverAtom, bookOpenAtom, covers } from "./UI";
 
-// Book dimensions based on actual trim size: 8" × 5" × 0.842"
+// Book dimensions based on actual trim size: 8" (height) × 5" (width) × 0.842" (spine depth)
+// The book opens along the 8" edge - spine runs along the 8" dimension
 // Scaling down to fit in scene (1 unit = 1 inch scaled to 0.2)
-const BOOK_WIDTH = 1.6; // 8" * 0.2
-const BOOK_HEIGHT = 1.0; // 5" * 0.2
-const SPINE_DEPTH = 0.168; // 0.842" * 0.2
+const BOOK_HEIGHT = 1.6; // 8" * 0.2 (vertical dimension - spine runs along this)
+const BOOK_WIDTH = 1.0; // 5" * 0.2 (horizontal width of each cover)
+const SPINE_DEPTH = 0.168; // 0.842" * 0.2 (thickness of the spine)
 const COVER_THICKNESS = 0.008; // Thin cover material
 
 // Cover image has front (5") + spine (0.842") + back (5") = 10.842" total width
+// But the HEIGHT of the cover image is 8.25" (matches the 8" book height)
 const COVER_TOTAL_WIDTH = 2.168; // 10.842" * 0.2
-const COVER_HEIGHT = 1.65; // 8.25" * 0.2 (slightly taller than book for wraparound)
+const COVER_IMAGE_HEIGHT = 1.65; // 8.25" * 0.2
 
 const easingFactor = 0.08;
 
@@ -65,24 +67,25 @@ export const Book = ({ ...props }) => {
   backTexture.needsUpdate = true;
 
   // Animate book opening/closing
+  // Spine runs along Y axis, so covers rotate around Z axis
   useFrame((_, delta) => {
     const targetAngle = bookOpen ? degToRad(120) : 0;
     
-    // Smooth rotation for front and back covers
+    // Smooth rotation for front and back covers around Z axis
     if (frontCoverRef.current) {
       easing.dampAngle(
         frontCoverRef.current.rotation,
-        "y",
+        "z",
         bookOpen ? targetAngle / 2 : 0,
         easingFactor,
         delta
       );
     }
-    
+
     if (backCoverRef.current) {
       easing.dampAngle(
         backCoverRef.current.rotation,
-        "y",
+        "z",
         bookOpen ? -targetAngle / 2 : 0,
         easingFactor,
         delta
@@ -92,25 +95,25 @@ export const Book = ({ ...props }) => {
 
   return (
     <group {...props}>
-      {/* Front Cover */}
-      <group ref={frontCoverRef} position-x={SPINE_DEPTH / 2}>
-        <mesh castShadow receiveShadow position-z={BOOK_WIDTH / 2}>
-          <boxGeometry args={[COVER_THICKNESS, BOOK_HEIGHT, BOOK_WIDTH]} />
+      {/* Front Cover - rotates around the spine (which is along Y axis) */}
+      <group ref={frontCoverRef} position-z={SPINE_DEPTH / 2}>
+        <mesh castShadow receiveShadow position-x={BOOK_WIDTH / 2}>
+          <boxGeometry args={[BOOK_WIDTH, BOOK_HEIGHT, COVER_THICKNESS]} />
           <meshStandardMaterial map={frontTexture} />
         </mesh>
-      </group>
+    </group>
 
-      {/* Back Cover */}
-      <group ref={backCoverRef} position-x={-SPINE_DEPTH / 2}>
-        <mesh castShadow receiveShadow position-z={BOOK_WIDTH / 2}>
-          <boxGeometry args={[COVER_THICKNESS, BOOK_HEIGHT, BOOK_WIDTH]} />
+      {/* Back Cover - rotates around the spine (which is along Y axis) */}
+      <group ref={backCoverRef} position-z={-SPINE_DEPTH / 2}>
+        <mesh castShadow receiveShadow position-x={BOOK_WIDTH / 2}>
+          <boxGeometry args={[BOOK_WIDTH, BOOK_HEIGHT, COVER_THICKNESS]} />
           <meshStandardMaterial map={backTexture} />
         </mesh>
       </group>
 
-      {/* Spine */}
-      <mesh ref={spineRef} castShadow receiveShadow position-z={BOOK_WIDTH / 2}>
-        <boxGeometry args={[SPINE_DEPTH, BOOK_HEIGHT, COVER_THICKNESS]} />
+      {/* Spine - runs along the Y axis (8" / 1.6 units tall) */}
+      <mesh ref={spineRef} castShadow receiveShadow position-x={BOOK_WIDTH / 2}>
+        <boxGeometry args={[COVER_THICKNESS, BOOK_HEIGHT, SPINE_DEPTH]} />
         <meshStandardMaterial map={spineTexture} />
       </mesh>
 
@@ -119,16 +122,16 @@ export const Book = ({ ...props }) => {
         <>
           {/* Left pages */}
           <group ref={frontCoverRef}>
-            <mesh position={[COVER_THICKNESS, 0, BOOK_WIDTH / 2]}>
-              <boxGeometry args={[SPINE_DEPTH / 2 - COVER_THICKNESS, BOOK_HEIGHT * 0.98, BOOK_WIDTH * 0.98]} />
+            <mesh position={[BOOK_WIDTH / 2, 0, COVER_THICKNESS]}>
+              <boxGeometry args={[BOOK_WIDTH * 0.98, BOOK_HEIGHT * 0.98, SPINE_DEPTH / 2 - COVER_THICKNESS]} />
               <meshStandardMaterial color="#f5f5f5" />
             </mesh>
           </group>
           
           {/* Right pages */}
           <group ref={backCoverRef}>
-            <mesh position={[-COVER_THICKNESS, 0, BOOK_WIDTH / 2]}>
-              <boxGeometry args={[SPINE_DEPTH / 2 - COVER_THICKNESS, BOOK_HEIGHT * 0.98, BOOK_WIDTH * 0.98]} />
+            <mesh position={[BOOK_WIDTH / 2, 0, -COVER_THICKNESS]}>
+              <boxGeometry args={[BOOK_WIDTH * 0.98, BOOK_HEIGHT * 0.98, SPINE_DEPTH / 2 - COVER_THICKNESS]} />
               <meshStandardMaterial color="#f5f5f5" />
             </mesh>
           </group>
