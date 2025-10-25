@@ -1,3 +1,142 @@
 ---
 alwaysApply: true
 ---
+
+# MIXTAPE HYPERBOREA - Book Cover Showcase Application
+
+## Project Overview
+A React Three Fiber 3D application for showcasing different cover designs for the same book. Users can visualize various cover options by clicking thumbnails, with the book displaying in an interactive 3D environment.
+
+## Book Specifications
+
+### Physical Dimensions
+- **Book Trim Size**: 8" (width) × 5" (height) × 0.842" (spine depth)
+- **Cover Image Size**: 10.842" × 8.25" (wraparound: front + spine + back)
+- **Spine Width**: 0.842" (centered along the 8" axis)
+- **Page Count**: 237 pages (in real life, but not used for page-flipping in app)
+- **Opening Axis**: Opens along the 8" edge (spine runs along 8" dimension)
+
+### Aspect Ratios & Calculations
+- Book aspect ratio: 8:5 (1.6:1)
+- Cover wraparound ratio: 10.842:8.25 (≈1.314:1)
+- Spine occupies center 0.842" of the 10.842" width (≈7.77% of total width)
+- Front cover: 5" wide (from left edge)
+- Spine: 0.842" wide (center section)
+- Back cover: 5" wide (to right edge)
+
+### 3D Book Behavior
+- **States**: Two states only - Closed or Open (no page flipping)
+- **Open State**: Opens to 120° angle, showing middle of book
+- **Interior**: Display blank pages when open
+- **Depth**: Must render with full spine depth (0.842") for realistic 3D appearance
+- **Cover Application**: Single wraparound texture maps to front, spine, and back surfaces
+
+## Cover Images
+
+### Format
+- **Type**: Single wraparound images containing front + spine + back
+- **Location**: Store in `/public/covers/` directory
+- **Format**: PNG preferred (with transparency if needed)
+- **Naming**: Descriptive filenames (e.g., A0.png, A1.png, B0.png, etc.)
+
+### Texture Mapping
+- Map the 10.842" × 8.25" image across:
+  - Left 5" → Front cover (when closed, visible front)
+  - Center 0.842" → Spine (visible when book is in any position)
+  - Right 5" → Back cover (when closed, visible back)
+
+## User Interface
+
+### Header
+- **Logo**: LampByLit logo from https://lampbylit.com/magazine/wp-content/uploads/2020/12/logo01.png
+- **Logo Link**: Links to https://lampbylit.com
+- **Title**: "MIXTAPE HYPERBOREA"
+- **Position**: Top of screen
+- **Style**: Minimal, clean design
+
+### Thumbnail Sidebar
+- **Position**: Left side of screen
+- **Scroll Direction**: Vertical
+- **Thumbnail Size**: Large enough to appreciate design details, but not obscuring the 3D book
+- **Image Preservation**: No skewing or cropping - maintain original aspect ratio
+- **Toggleability**: User can show/hide the thumbnail column
+- **Interaction**: Click thumbnail to swap the book's cover texture
+
+### Cover Switching
+- **Behavior**: When user clicks a thumbnail, the book's cover changes to that design
+- **Loading State**: Display simple loading indicator/throbber during texture swap
+- **Transition**: Keep it simple and clean
+
+### Environment
+- **Background**: Minimal gray 3D sandbox environment
+- **Purpose**: Clean, professional display optimized for visual showcase
+- **Lighting**: Good directional lighting to show book depth and texture
+- **Floor**: Simple shadow-receiving plane
+
+### Camera & Controls
+- **Float Effect**: Keep the floating animation for the book
+- **Rotation**: Keep gentle rotation animation
+- **OrbitControls**: Keep enabled for user interaction
+- **No Additional Movement**: No complex camera animations needed
+
+## UI Elements to Remove
+- ❌ Remove all "Wawa Sensei" branding
+- ❌ Remove horizontal scrolling text animations
+- ❌ Remove existing page navigation buttons (since we're not flipping pages)
+- ❌ Remove tutorial/course links
+
+## Technical Implementation Notes
+
+### 3D Modeling
+- The book must have proper 3D geometry with spine thickness
+- Use separate geometries for front cover, spine, and back cover OR use proper UV mapping
+- Ensure spine is visible from side angles
+- Add page geometry (simple white planes) inside when book is open
+
+### State Management
+- Track current selected cover design
+- Track open/closed state
+- Track sidebar visibility state
+
+### Performance
+- Preload all cover textures for smooth switching
+- Use texture compression if needed
+- Optimize 3D geometry for smooth performance
+
+### Responsive Design
+- Ensure thumbnails are scrollable on all screen sizes
+- Adjust thumbnail size for mobile if needed
+- Keep book centered and appropriately sized for viewport
+
+## Color Scheme
+- **Primary**: Minimal gray tones
+- **Accents**: Professional, clean - no bright colors unless in cover designs
+- **Environment**: Subtle gradient background (gray tones)
+- **UI Elements**: Clean, modern, professional appearance
+
+## File Structure
+```
+/public
+  /covers          → Book cover wraparound images (PNG)
+  /images          → Logo and UI assets
+  /audios          → (Optional) Page turn sound effects
+
+/src
+  /components
+    - Book.jsx           → 3D book component with cover swapping
+    - Experience.jsx     → 3D scene setup
+    - UI.jsx            → Header, title, thumbnail sidebar
+  - App.jsx         → Main app component
+```
+
+## Development Priorities
+1. ✅ Set up proper book dimensions (8" × 5" × 0.842")
+2. ✅ Implement cover texture mapping from wraparound images
+3. ✅ Create thumbnail sidebar with toggle functionality
+4. ✅ Implement cover switching with loading state
+5. ✅ Add blank pages visible when book opens to 120°
+6. ✅ Update branding (LampByLit logo + MIXTAPE HYPERBOREA title)
+7. ✅ Style minimal gray environment
+8. ✅ Remove old Wawa Sensei elements
+9. ✅ Test all cover images display correctly
+10. ✅ Ensure responsive design works on all devices
