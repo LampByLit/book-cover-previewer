@@ -40,7 +40,7 @@ export const Experience = () => {
       {/* Floor plane for shadows */}
       <mesh position-y={-1.5} rotation-x={-Math.PI / 2} receiveShadow>
         <planeGeometry args={[100, 100]} />
-        <meshStandardMaterial color="#4b5563" />
+        <meshStandardMaterial color="#e5e7eb" />
       </mesh>
     </>
   );

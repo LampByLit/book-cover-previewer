@@ -52,6 +52,10 @@ export const UI = () => {
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-20 pointer-events-none">
         <div className="flex items-center justify-between p-6">
+          <div className="w-16" /> {/* Spacer for centering */}
+          <h1 className="text-white text-3xl font-bold tracking-wider">
+            MIXTAPE HYPERBOREA
+          </h1>
           <a
             href="https://lampbylit.com"
             target="_blank"
@@ -64,10 +68,6 @@ export const UI = () => {
               className="h-16 w-auto"
             />
           </a>
-          <h1 className="text-white text-3xl font-bold tracking-wider">
-            MIXTAPE HYPERBOREA
-          </h1>
-          <div className="w-16" /> {/* Spacer for centering */}
         </div>
       </header>
 
