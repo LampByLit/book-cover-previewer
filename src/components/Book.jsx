@@ -101,17 +101,17 @@ export const Book = ({ ...props }) => {
         <meshStandardMaterial map={spineTexture} />
       </mesh>
 
-      {/* Front Cover - extends from spine in +X direction, positioned at +Z */}
+      {/* Front Cover - extends from spine in -X direction, positioned at +Z */}
       <group ref={frontCoverRef} position-z={SPINE_DEPTH / 2}>
-        <mesh castShadow receiveShadow position-x={BOOK_WIDTH / 2}>
+        <mesh castShadow receiveShadow position-x={-BOOK_WIDTH / 2}>
           <boxGeometry args={[BOOK_WIDTH, BOOK_HEIGHT, COVER_THICKNESS]} />
           <meshStandardMaterial map={frontTexture} />
         </mesh>
       </group>
 
-      {/* Back Cover - extends from spine in +X direction, positioned at -Z */}
+      {/* Back Cover - extends from spine in -X direction, positioned at -Z */}
       <group ref={backCoverRef} position-z={-SPINE_DEPTH / 2}>
-        <mesh castShadow receiveShadow position-x={BOOK_WIDTH / 2}>
+        <mesh castShadow receiveShadow position-x={-BOOK_WIDTH / 2}>
           <boxGeometry args={[BOOK_WIDTH, BOOK_HEIGHT, COVER_THICKNESS]} />
           <meshStandardMaterial map={backTexture} />
         </mesh>
@@ -122,7 +122,7 @@ export const Book = ({ ...props }) => {
         <>
           {/* Front pages */}
           <group ref={frontCoverRef}>
-            <mesh position={[BOOK_WIDTH / 2, 0, COVER_THICKNESS]}>
+            <mesh position={[-BOOK_WIDTH / 2, 0, COVER_THICKNESS]}>
               <boxGeometry args={[BOOK_WIDTH * 0.98, BOOK_HEIGHT * 0.98, SPINE_DEPTH / 2 - COVER_THICKNESS]} />
               <meshStandardMaterial color="#f5f5f5" />
             </mesh>
@@ -130,7 +130,7 @@ export const Book = ({ ...props }) => {
           
           {/* Back pages */}
           <group ref={backCoverRef}>
-            <mesh position={[BOOK_WIDTH / 2, 0, -COVER_THICKNESS]}>
+            <mesh position={[-BOOK_WIDTH / 2, 0, -COVER_THICKNESS]}>
               <boxGeometry args={[BOOK_WIDTH * 0.98, BOOK_HEIGHT * 0.98, SPINE_DEPTH / 2 - COVER_THICKNESS]} />
               <meshStandardMaterial color="#f5f5f5" />
             </mesh>
