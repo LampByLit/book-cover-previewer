@@ -81,7 +81,7 @@ export const Book = ({ ...props }) => {
         delta
       );
     }
-    
+
     if (backCoverRef.current) {
       easing.dampAngle(
         backCoverRef.current.rotation,
@@ -109,12 +109,10 @@ export const Book = ({ ...props }) => {
         </mesh>
         
         {/* Front pages attached to front cover - INSIDE the book */}
-        {bookOpen && (
-          <mesh position={[-BOOK_WIDTH / 2, 0, -(SPINE_DEPTH / 4 + COVER_THICKNESS / 2)]}>
-            <boxGeometry args={[BOOK_WIDTH * 0.98, BOOK_HEIGHT * 0.98, SPINE_DEPTH / 2 - COVER_THICKNESS]} />
-            <meshStandardMaterial color="#f5f5f5" />
-          </mesh>
-        )}
+        <mesh position={[-BOOK_WIDTH / 2, 0, -(SPINE_DEPTH / 4 + COVER_THICKNESS / 2)]}>
+          <boxGeometry args={[BOOK_WIDTH * 0.98, BOOK_HEIGHT * 0.98, SPINE_DEPTH / 2 - COVER_THICKNESS]} />
+          <meshStandardMaterial color="#f5f5f5" />
+        </mesh>
       </group>
 
       {/* Back Cover - pivot at spine (x=0), extends in -X direction, positioned at -Z */}
@@ -125,12 +123,10 @@ export const Book = ({ ...props }) => {
         </mesh>
         
         {/* Back pages attached to back cover - INSIDE the book */}
-        {bookOpen && (
-          <mesh position={[-BOOK_WIDTH / 2, 0, (SPINE_DEPTH / 4 + COVER_THICKNESS / 2)]}>
-            <boxGeometry args={[BOOK_WIDTH * 0.98, BOOK_HEIGHT * 0.98, SPINE_DEPTH / 2 - COVER_THICKNESS]} />
-            <meshStandardMaterial color="#f5f5f5" />
-          </mesh>
-        )}
+        <mesh position={[-BOOK_WIDTH / 2, 0, (SPINE_DEPTH / 4 + COVER_THICKNESS / 2)]}>
+          <boxGeometry args={[BOOK_WIDTH * 0.98, BOOK_HEIGHT * 0.98, SPINE_DEPTH / 2 - COVER_THICKNESS]} />
+          <meshStandardMaterial color="#f5f5f5" />
+        </mesh>
       </group>
     </group>
   );
