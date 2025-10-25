@@ -53,7 +53,7 @@ export const UI = () => {
       <header className="fixed top-0 left-0 right-0 z-20 pointer-events-none">
         <div className="flex items-center justify-between p-4 md:p-6">
           <div className="w-8 md:w-16" /> {/* Spacer for centering */}
-          <h1 className="text-white text-xl md:text-3xl font-bold tracking-wider">
+          <h1 className="text-black text-xl md:text-3xl font-bold tracking-wider">
             MIXTAPE HYPERBOREA
           </h1>
           <a
@@ -87,7 +87,7 @@ export const UI = () => {
         }`}
         style={{ width: "min(300px, 80vw)" }}
       >
-        <div className="h-full overflow-y-auto pt-28 pb-8 px-4">
+        <div className="h-full overflow-y-auto pt-4 pb-8 px-4">
           <div className="space-y-4">
             {covers.map((cover, index) => (
               <button
