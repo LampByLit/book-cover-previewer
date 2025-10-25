@@ -67,25 +67,25 @@ export const Book = ({ ...props }) => {
   backTexture.needsUpdate = true;
 
   // Animate book opening/closing
-  // Spine runs along Y axis, so covers rotate around Z axis
+  // Spine runs along Y axis (vertical), covers rotate around Y axis
   useFrame((_, delta) => {
     const targetAngle = bookOpen ? degToRad(120) : 0;
     
-    // Smooth rotation for front and back covers around Z axis
+    // Smooth rotation for front and back covers around Y axis (spine hinge)
     if (frontCoverRef.current) {
       easing.dampAngle(
         frontCoverRef.current.rotation,
-        "z",
+        "y",
         bookOpen ? targetAngle / 2 : 0,
         easingFactor,
         delta
       );
     }
-
+    
     if (backCoverRef.current) {
       easing.dampAngle(
         backCoverRef.current.rotation,
-        "z",
+        "y",
         bookOpen ? -targetAngle / 2 : 0,
         easingFactor,
         delta
