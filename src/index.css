@@ -6,7 +6,7 @@
 #root {
   width: 100vw;
   height: 100vh;
-  background: radial-gradient(#5a47ce, #232323 80%);
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 50%, #374151 100%);
 }
 
 body {
