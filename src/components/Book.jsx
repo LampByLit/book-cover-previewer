@@ -47,23 +47,30 @@ export const Book = ({ ...props }) => {
   const spineTexture = coverTexture.clone();
   const backTexture = coverTexture.clone();
 
-  // Calculate UV mapping for wraparound texture
-  // Cover image: 10.842" total (5" front + 0.842" spine + 5" back)
-  const frontUVWidth = 5 / 10.842; // ~0.461
-  const spineUVWidth = 0.842 / 10.842; // ~0.078
-  const backUVWidth = 5 / 10.842; // ~0.461
-
-  // Set texture repeats and offsets
-  frontTexture.repeat.set(frontUVWidth, 1);
-  frontTexture.offset.set(0, 0);
+  // Calculate UV mapping for wraparound texture with bleed adjustment
+  // Cover image: 10.842" total (5" front + 0.842" spine + 5" back) × 8.25" height
+  // Bleed: 0.125" to remove from outer edges only
+  
+  const BLEED_HORIZONTAL = 0.125 / 10.842; // ~0.01153 in UV space
+  const BLEED_VERTICAL = 0.125 / 8.25;     // ~0.01515 in UV space
+  
+  // Front cover: remove bleed from LEFT (outer edge), TOP, and BOTTOM
+  const frontWidth = 5 / 10.842;
+  const frontWidthTrimmed = (5 - 0.125) / 10.842; // Remove 0.125" from left
+  frontTexture.repeat.set(frontWidthTrimmed, 1 - 2 * BLEED_VERTICAL);
+  frontTexture.offset.set(BLEED_HORIZONTAL, BLEED_VERTICAL);
   frontTexture.needsUpdate = true;
 
-  spineTexture.repeat.set(spineUVWidth, 1);
-  spineTexture.offset.set(frontUVWidth, 0);
+  // Spine: remove bleed from TOP and BOTTOM only (not left/right - connects to covers)
+  const spineWidth = 0.842 / 10.842;
+  spineTexture.repeat.set(spineWidth, 1 - 2 * BLEED_VERTICAL);
+  spineTexture.offset.set(frontWidth, BLEED_VERTICAL);
   spineTexture.needsUpdate = true;
 
-  backTexture.repeat.set(backUVWidth, 1);
-  backTexture.offset.set(frontUVWidth + spineUVWidth, 0);
+  // Back cover: remove bleed from RIGHT (outer edge), TOP, and BOTTOM
+  const backWidthTrimmed = (5 - 0.125) / 10.842; // Remove 0.125" from right
+  backTexture.repeat.set(backWidthTrimmed, 1 - 2 * BLEED_VERTICAL);
+  backTexture.offset.set(frontWidth + spineWidth, BLEED_VERTICAL);
   backTexture.needsUpdate = true;
 
   // Animate book opening/closing
