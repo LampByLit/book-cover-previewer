@@ -110,7 +110,7 @@ export const Book = ({ ...props }) => {
         
         {/* Front pages attached to front cover - INSIDE the book */}
         {bookOpen && (
-          <mesh position={[-BOOK_WIDTH / 2, 0, -COVER_THICKNESS]}>
+          <mesh position={[-BOOK_WIDTH / 2, 0, -(SPINE_DEPTH / 4 + COVER_THICKNESS / 2)]}>
             <boxGeometry args={[BOOK_WIDTH * 0.98, BOOK_HEIGHT * 0.98, SPINE_DEPTH / 2 - COVER_THICKNESS]} />
             <meshStandardMaterial color="#f5f5f5" />
           </mesh>
@@ -126,7 +126,7 @@ export const Book = ({ ...props }) => {
         
         {/* Back pages attached to back cover - INSIDE the book */}
         {bookOpen && (
-          <mesh position={[-BOOK_WIDTH / 2, 0, COVER_THICKNESS]}>
+          <mesh position={[-BOOK_WIDTH / 2, 0, (SPINE_DEPTH / 4 + COVER_THICKNESS / 2)]}>
             <boxGeometry args={[BOOK_WIDTH * 0.98, BOOK_HEIGHT * 0.98, SPINE_DEPTH / 2 - COVER_THICKNESS]} />
             <meshStandardMaterial color="#f5f5f5" />
           </mesh>
