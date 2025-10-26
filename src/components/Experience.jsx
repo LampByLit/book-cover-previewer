@@ -38,8 +38,8 @@ export const Experience = forwardRef((props, ref) => {
       <OrbitControls
         ref={controlsRef}
         enablePan={false}
-        minDistance={3}
-        maxDistance={10}
+        minDistance={1}
+        maxDistance={25}
       />
       
       {/* Minimal Studio Lighting */}
