@@ -172,7 +172,9 @@ export const UI = ({ experienceRef }) => {
       </aside>
 
       {/* Book Controls */}
-      <div className="fixed bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
+      <div className={`fixed bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 z-20 pointer-events-none transition-opacity duration-300 ${
+        sidebarVisible ? "opacity-0 md:opacity-100" : "opacity-100"
+      }`}>
         <div className="flex items-center gap-2 md:gap-3 pointer-events-auto">
           {/* Navigation Group */}
           <div className="flex items-center gap-2 md:gap-3">
