@@ -45,6 +45,12 @@ export const UI = ({ experienceRef }) => {
     }
   };
 
+  const handleShowBack = () => {
+    if (experienceRef.current) {
+      experienceRef.current.showBack();
+    }
+  };
+
   return (
     <>
       {/* Header - hidden on mobile when sidebar is open */}
@@ -52,10 +58,33 @@ export const UI = ({ experienceRef }) => {
         sidebarVisible ? "md:opacity-100 opacity-0" : "opacity-100"
       }`}>
         <div className="flex items-center justify-between p-4 md:p-6">
-          <div className="w-8 md:w-16" /> {/* Spacer for centering */}
+          <button
+            onClick={handleShowBack}
+            className="pointer-events-auto flex items-center gap-2 text-slate-700 hover:text-slate-900 transition-colors duration-200"
+            title="Show back of book"
+            aria-label="Show back of book"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="transition-transform duration-200 hover:scale-110"
+            >
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+              <polyline points="9,22 9,12 15,12 15,22" />
+            </svg>
+            <span className="text-sm md:text-base font-medium hidden md:inline">Back</span>
+          </button>
+
           <h1 className="text-black text-xl md:text-3xl font-bold tracking-wider whitespace-nowrap">
             MIXTAPE HYPERBOREA
           </h1>
+
           <a
             href="https://lampbylit.com"
             target="_blank"
