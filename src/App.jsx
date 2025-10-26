@@ -1,13 +1,15 @@
 import { Loader } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
-import { Suspense } from "react";
+import { Suspense, useRef } from "react";
 import { Experience } from "./components/Experience";
 import { UI } from "./components/UI";
 
 function App() {
+  const experienceRef = useRef();
+
   return (
     <>
-      <UI />
+      <UI experienceRef={experienceRef} />
       <Loader />
       <Canvas shadows camera={{
           position: [-0.5, 1, window.innerWidth > 800 ? 4 : 6],
@@ -15,7 +17,7 @@ function App() {
         }}>
         <group position-y={0}>
           <Suspense fallback={null}>
-            <Experience />
+            <Experience ref={experienceRef} />
           </Suspense>
         </group>
       </Canvas>

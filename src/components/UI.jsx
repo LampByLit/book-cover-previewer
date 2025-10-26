@@ -14,7 +14,7 @@ export const sidebarVisibleAtom = atom(true); // Thumbnail sidebar visibility
 
 export { covers };
 
-export const UI = () => {
+export const UI = ({ experienceRef }) => {
   const [selectedCover, setSelectedCover] = useAtom(coverAtom);
   const [bookOpen, setBookOpen] = useAtom(bookOpenAtom);
   const [sidebarVisible, setSidebarVisible] = useAtom(sidebarVisibleAtom);
@@ -37,6 +37,12 @@ export const UI = () => {
   const handlePreviousCover = () => {
     const prevIndex = selectedCover === 0 ? covers.length - 1 : selectedCover - 1;
     handleCoverChange(prevIndex);
+  };
+
+  const handleCenterView = () => {
+    if (experienceRef.current) {
+      experienceRef.current.resetCamera();
+    }
   };
 
   return (
@@ -167,28 +173,79 @@ export const UI = () => {
 
       {/* Book Controls */}
       <div className="fixed bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
-        <div className="flex items-center gap-3 md:gap-4 pointer-events-auto">
-          {/* Previous Cover Button */}
-          <button
-            onClick={handlePreviousCover}
-            className="bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700 active:from-slate-800 active:to-slate-800 text-white p-3 md:p-4 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl active:shadow-md border border-slate-600/50 hover:border-slate-500/50"
-            title="Previous cover"
-            aria-label="Go to previous cover"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="transition-transform duration-200 hover:scale-110"
+        <div className="flex items-center gap-2 md:gap-3 pointer-events-auto">
+          {/* Navigation Group */}
+          <div className="flex items-center gap-2 md:gap-3">
+            {/* Previous Cover Button */}
+            <button
+              onClick={handlePreviousCover}
+              className="bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700 active:from-slate-800 active:to-slate-800 text-white p-3 md:p-4 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl active:shadow-md border border-slate-600/50 hover:border-slate-500/50"
+              title="Previous cover"
+              aria-label="Go to previous cover"
             >
-              <path d="M15 18l-6-6 6-6" />
-            </svg>
-          </button>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="transition-transform duration-200 hover:scale-110"
+              >
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </button>
+
+            {/* Center View Button */}
+            <button
+              onClick={handleCenterView}
+              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 active:from-blue-700 active:to-blue-700 text-white p-2.5 md:p-3.5 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl active:shadow-md border border-blue-500/50 hover:border-blue-400/50"
+              title="Center view"
+              aria-label="Center and reset camera view"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="transition-transform duration-200 hover:scale-110"
+              >
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                <polyline points="9,22 9,12 15,12 15,22" />
+              </svg>
+            </button>
+
+            {/* Next Cover Button */}
+            <button
+              onClick={handleNextCover}
+              className="bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700 active:from-slate-800 active:to-slate-800 text-white p-3 md:p-4 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl active:shadow-md border border-slate-600/50 hover:border-slate-500/50"
+              title="Next cover"
+              aria-label="Go to next cover"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="transition-transform duration-200 hover:scale-110"
+              >
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Separator */}
+          <div className="w-px h-8 md:h-10 bg-slate-600/50 mx-1" />
 
           {/* Open/Close Book Button */}
           <button
@@ -196,28 +253,6 @@ export const UI = () => {
             className="bg-gradient-to-r from-slate-800 to-slate-900 hover:from-slate-700 hover:to-slate-800 active:from-slate-900 active:to-slate-800 text-white px-6 md:px-8 py-3 md:py-4 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl active:shadow-md border border-slate-600/50 hover:border-slate-500/50 font-medium text-sm md:text-base min-w-[140px] md:min-w-[160px]"
           >
             {bookOpen ? "Close Book" : "Open Book"}
-          </button>
-
-          {/* Next Cover Button */}
-          <button
-            onClick={handleNextCover}
-            className="bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700 active:from-slate-800 active:to-slate-800 text-white p-3 md:p-4 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl active:shadow-md border border-slate-600/50 hover:border-slate-500/50"
-            title="Next cover"
-            aria-label="Go to next cover"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="transition-transform duration-200 hover:scale-110"
-            >
-              <path d="M9 18l6-6-6-6" />
-            </svg>
           </button>
         </div>
       </div>

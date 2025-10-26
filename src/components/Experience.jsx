@@ -1,7 +1,29 @@
 import { Environment, Float, OrbitControls } from "@react-three/drei";
+import { useThree } from "@react-three/fiber";
+import { useRef, useImperativeHandle, forwardRef } from "react";
 import { Book } from "./Book";
 
-export const Experience = () => {
+export const Experience = forwardRef((props, ref) => {
+  const { camera } = useThree();
+  const controlsRef = useRef();
+
+  // Reset camera to initial centered position
+  const resetCamera = () => {
+    if (controlsRef.current) {
+      // Reset controls
+      controlsRef.current.reset();
+
+      // Also reset camera position to initial values
+      camera.position.set(-0.5, 1, window.innerWidth > 800 ? 4 : 6);
+      camera.lookAt(0, 0, 0);
+      controlsRef.current.update();
+    }
+  };
+
+  useImperativeHandle(ref, () => ({
+    resetCamera
+  }));
+
   return (
     <>
       <Float
@@ -13,7 +35,8 @@ export const Experience = () => {
       >
         <Book />
       </Float>
-      <OrbitControls 
+      <OrbitControls
+        ref={controlsRef}
         enablePan={false}
         minDistance={3}
         maxDistance={10}
@@ -44,4 +67,4 @@ export const Experience = () => {
       </mesh>
     </>
   );
-};
+});
