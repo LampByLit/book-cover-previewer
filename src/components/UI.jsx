@@ -53,10 +53,8 @@ export const UI = ({ experienceRef }) => {
 
   return (
     <>
-      {/* Header - hidden on mobile when sidebar is open */}
-      <header className={`fixed top-0 left-0 right-0 z-20 pointer-events-none transition-opacity duration-300 ${
-        sidebarVisible ? "md:opacity-100 opacity-0" : "opacity-100"
-      }`}>
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 z-20 pointer-events-none">
         <div className="flex items-center justify-between p-4 md:p-6">
           <button
             onClick={handleShowBack}
