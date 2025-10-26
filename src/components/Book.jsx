@@ -108,11 +108,11 @@ export const Book = ({ ...props }) => {
         {/* Material array: [+X, -X, +Y, -Y, +Z (front-facing), -Z (back-facing)] */}
         <meshStandardMaterial 
           attach="material-0"
-          color="#000000"
+          map={spineTexture}
         />
         <meshStandardMaterial 
           attach="material-1"
-          color="#000000"
+          map={spineTexture}
         />
         <meshStandardMaterial 
           attach="material-2"
@@ -124,11 +124,11 @@ export const Book = ({ ...props }) => {
         />
         <meshStandardMaterial 
           attach="material-4"
-          map={spineTexture}
+          color="#000000"
         />
         <meshStandardMaterial 
           attach="material-5"
-          map={spineTexture}
+          color="#000000"
         />
       </mesh>
 
