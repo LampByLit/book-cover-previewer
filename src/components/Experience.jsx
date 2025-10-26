@@ -20,19 +20,8 @@ export const Experience = forwardRef((props, ref) => {
     }
   };
 
-  // Show back of the book by rotating 180 degrees
-  const showBack = () => {
-    if (controlsRef.current) {
-      // Position camera behind the book to see the back
-      camera.position.set(0.5, 1, -(window.innerWidth > 800 ? 4 : 6));
-      camera.lookAt(0, 0, 0);
-      controlsRef.current.update();
-    }
-  };
-
   useImperativeHandle(ref, () => ({
-    resetCamera,
-    showBack
+    resetCamera
   }));
 
   return (
