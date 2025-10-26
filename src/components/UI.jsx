@@ -125,20 +125,20 @@ export const UI = ({ experienceRef }) => {
           <div className="space-y-4">
             {covers.map((cover, index) => (
               <div key={index} className="relative group">
-                <button
-                  onClick={() => handleCoverChange(index)}
-                  className={`w-full pointer-events-auto transition-all duration-300 rounded-lg overflow-hidden ${
-                    selectedCover === index
-                      ? "ring-4 ring-blue-500 shadow-xl"
-                      : "ring-2 ring-gray-300 hover:ring-gray-500"
-                  }`}
-                >
-                  <img
-                    src={`/covers/${cover}`}
-                    alt={`Cover ${index + 1}`}
-                    className="w-full h-auto"
-                  />
-                </button>
+              <button
+                onClick={() => handleCoverChange(index)}
+                className={`w-full pointer-events-auto transition-all duration-300 rounded-lg overflow-hidden ${
+                  selectedCover === index
+                    ? "ring-4 ring-blue-500 shadow-xl"
+                    : "ring-2 ring-gray-300 hover:ring-gray-500"
+                }`}
+              >
+                <img
+                  src={`/covers/${cover}`}
+                  alt={`Cover ${index + 1}`}
+                  className="w-full h-auto"
+                />
+              </button>
 
                 {/* Full Image View Button */}
                 <button
@@ -250,12 +250,12 @@ export const UI = ({ experienceRef }) => {
           <div className="w-px h-8 md:h-10 bg-slate-600/50 mx-1" />
 
           {/* Open/Close Book Button */}
-          <button
-            onClick={() => setBookOpen(!bookOpen)}
+        <button
+          onClick={() => setBookOpen(!bookOpen)}
             className="bg-gradient-to-r from-slate-800 to-slate-900 hover:from-slate-700 hover:to-slate-800 active:from-slate-900 active:to-slate-800 text-white px-6 md:px-8 py-3 md:py-4 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl active:shadow-md border border-slate-600/50 hover:border-slate-500/50 font-medium text-sm md:text-base min-w-[140px] md:min-w-[160px]"
-          >
-            {bookOpen ? "Close Book" : "Open Book"}
-          </button>
+        >
+          {bookOpen ? "Close Book" : "Open Book"}
+        </button>
         </div>
       </div>
 
