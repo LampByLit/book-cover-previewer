@@ -29,6 +29,16 @@ export const UI = () => {
     }, 300);
   };
 
+  const handleNextCover = () => {
+    const nextIndex = (selectedCover + 1) % covers.length;
+    handleCoverChange(nextIndex);
+  };
+
+  const handlePreviousCover = () => {
+    const prevIndex = selectedCover === 0 ? covers.length - 1 : selectedCover - 1;
+    handleCoverChange(prevIndex);
+  };
+
   return (
     <>
       {/* Header - hidden on mobile when sidebar is open */}
@@ -157,12 +167,59 @@ export const UI = () => {
 
       {/* Book Controls */}
       <div className="fixed bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
-        <button
-          onClick={() => setBookOpen(!bookOpen)}
-          className="pointer-events-auto bg-gray-800/80 hover:bg-gray-700/90 text-white px-6 md:px-8 py-2 md:py-3 rounded-full transition-all duration-300 font-medium text-sm md:text-base"
-        >
-          {bookOpen ? "Close Book" : "Open Book"}
-        </button>
+        <div className="flex items-center gap-3 md:gap-4 pointer-events-auto">
+          {/* Previous Cover Button */}
+          <button
+            onClick={handlePreviousCover}
+            className="bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700 active:from-slate-800 active:to-slate-800 text-white p-3 md:p-4 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl active:shadow-md border border-slate-600/50 hover:border-slate-500/50"
+            title="Previous cover"
+            aria-label="Go to previous cover"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="transition-transform duration-200 hover:scale-110"
+            >
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
+
+          {/* Open/Close Book Button */}
+          <button
+            onClick={() => setBookOpen(!bookOpen)}
+            className="bg-gradient-to-r from-slate-800 to-slate-900 hover:from-slate-700 hover:to-slate-800 active:from-slate-900 active:to-slate-800 text-white px-6 md:px-8 py-3 md:py-4 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl active:shadow-md border border-slate-600/50 hover:border-slate-500/50 font-medium text-sm md:text-base min-w-[140px] md:min-w-[160px]"
+          >
+            {bookOpen ? "Close Book" : "Open Book"}
+          </button>
+
+          {/* Next Cover Button */}
+          <button
+            onClick={handleNextCover}
+            className="bg-gradient-to-r from-slate-700 to-slate-800 hover:from-slate-600 hover:to-slate-700 active:from-slate-800 active:to-slate-800 text-white p-3 md:p-4 rounded-full transition-all duration-200 shadow-lg hover:shadow-xl active:shadow-md border border-slate-600/50 hover:border-slate-500/50"
+            title="Next cover"
+            aria-label="Go to next cover"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="transition-transform duration-200 hover:scale-110"
+            >
+              <path d="M9 18l6-6-6-6" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Loading Indicator */}
