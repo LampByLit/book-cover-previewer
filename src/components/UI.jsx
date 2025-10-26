@@ -74,21 +74,48 @@ export const UI = () => {
         <div className="h-full overflow-y-auto pt-4 pb-8 px-4">
           <div className="space-y-4">
             {covers.map((cover, index) => (
-              <button
-                key={index}
-                onClick={() => handleCoverChange(index)}
-                className={`w-full pointer-events-auto transition-all duration-300 rounded-lg overflow-hidden ${
-                  selectedCover === index
-                    ? "ring-4 ring-blue-500 shadow-xl"
-                    : "ring-2 ring-gray-300 hover:ring-gray-500"
-                }`}
-              >
-                <img
-                  src={`/covers/${cover}`}
-                  alt={`Cover ${index + 1}`}
-                  className="w-full h-auto"
-                />
-              </button>
+              <div key={index} className="relative group">
+                <button
+                  onClick={() => handleCoverChange(index)}
+                  className={`w-full pointer-events-auto transition-all duration-300 rounded-lg overflow-hidden ${
+                    selectedCover === index
+                      ? "ring-4 ring-blue-500 shadow-xl"
+                      : "ring-2 ring-gray-300 hover:ring-gray-500"
+                  }`}
+                >
+                  <img
+                    src={`/covers/${cover}`}
+                    alt={`Cover ${index + 1}`}
+                    className="w-full h-auto"
+                  />
+                </button>
+
+                {/* Full Image View Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent triggering cover change
+                    window.open(`/covers/${cover}`, '_blank', 'noopener,noreferrer');
+                  }}
+                  className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-auto bg-black/60 hover:bg-black/80 text-white p-1.5 rounded-full text-xs"
+                  title="View full image in new tab"
+                  aria-label={`View full size of cover ${index + 1} in new tab`}
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                    <polyline points="15,3 21,3 21,9" />
+                    <line x1="10" y1="14" x2="21" y2="3" />
+                  </svg>
+                </button>
+              </div>
             ))}
           </div>
         </div>
