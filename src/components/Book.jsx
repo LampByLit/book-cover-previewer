@@ -105,7 +105,31 @@ export const Book = ({ ...props }) => {
       {/* Spine - runs along the Y axis (8" / 1.6 units tall) at the binding edge */}
       <mesh ref={spineRef} castShadow receiveShadow position-x={0}>
         <boxGeometry args={[COVER_THICKNESS, BOOK_HEIGHT, SPINE_DEPTH]} />
-        <meshStandardMaterial map={spineTexture} />
+        {/* Material array: [+X, -X, +Y, -Y, +Z (front-facing), -Z (back-facing)] */}
+        <meshStandardMaterial 
+          attach="material-0"
+          map={spineTexture}
+        />
+        <meshStandardMaterial 
+          attach="material-1"
+          map={spineTexture}
+        />
+        <meshStandardMaterial 
+          attach="material-2"
+          map={spineTexture}
+        />
+        <meshStandardMaterial 
+          attach="material-3"
+          map={spineTexture}
+        />
+        <meshStandardMaterial 
+          attach="material-4"
+          color="#000000"
+        />
+        <meshStandardMaterial 
+          attach="material-5"
+          color="#000000"
+        />
       </mesh>
 
       {/* Front Cover - pivot at spine (x=0), extends in -X direction, positioned at +Z */}
