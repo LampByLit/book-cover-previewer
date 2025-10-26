@@ -58,10 +58,44 @@ export const UI = () => {
       {/* Sidebar Toggle Button */}
       <button
         onClick={() => setSidebarVisible(!sidebarVisible)}
-        className="fixed top-1/2 -translate-y-1/2 z-30 pointer-events-auto bg-gray-800/80 hover:bg-gray-700/90 text-white px-2 md:px-3 py-4 md:py-6 rounded-r-lg transition-all duration-300 text-sm md:text-base"
-        style={{ left: sidebarVisible ? "min(300px, 80vw)" : "4px" }}
+        className="fixed top-1/2 -translate-y-1/2 z-30 pointer-events-auto bg-gradient-to-r from-slate-800 to-slate-900 hover:from-slate-700 hover:to-slate-800 active:from-slate-900 active:to-slate-800 text-white p-3 md:p-4 rounded-r-xl transition-all duration-200 shadow-2xl hover:shadow-3xl active:shadow-xl border border-slate-600/50 hover:border-slate-500/50 active:border-slate-400/50 backdrop-blur-sm md:min-w-[48px] md:min-h-[48px] min-w-[56px] min-h-[56px]"
+        style={{
+          left: sidebarVisible ? "min(300px, 80vw)" : "4px"
+        }}
+        title={sidebarVisible ? "Hide sidebar" : "Show sidebar"}
+        aria-label={sidebarVisible ? "Hide sidebar" : "Show sidebar"}
       >
-        {sidebarVisible ? "◀" : "▶"}
+        <div className="flex items-center justify-center">
+          {sidebarVisible ? (
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="transition-transform duration-200 hover:scale-110"
+            >
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          ) : (
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="transition-transform duration-200 hover:scale-110"
+            >
+              <path d="M9 18l6-6-6-6" />
+            </svg>
+          )}
+        </div>
       </button>
 
       {/* Thumbnail Sidebar */}
