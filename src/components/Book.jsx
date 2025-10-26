@@ -105,30 +105,30 @@ export const Book = ({ ...props }) => {
       {/* Spine - runs along the Y axis (8" / 1.6 units tall) at the binding edge */}
       <mesh ref={spineRef} castShadow receiveShadow position-x={0}>
         <boxGeometry args={[COVER_THICKNESS, BOOK_HEIGHT, SPINE_DEPTH]} />
-        {/* Material array: [right, left, top, bottom, front, back] */}
-        <meshStandardMaterial
+        {/* Material array: [+X, -X, +Y, -Y, +Z (front-facing), -Z (back-facing)] */}
+        <meshStandardMaterial 
           attach="material-0"
           map={spineTexture}
         />
-        <meshStandardMaterial
+        <meshStandardMaterial 
           attach="material-1"
           map={spineTexture}
         />
-        <meshStandardMaterial
+        <meshStandardMaterial 
           attach="material-2"
-          color="#000000"
+          map={spineTexture}
         />
-        <meshStandardMaterial
+        <meshStandardMaterial 
           attach="material-3"
+          map={spineTexture}
+        />
+        <meshStandardMaterial 
+          attach="material-4"
           color="#000000"
         />
-        <meshStandardMaterial
-          attach="material-4"
-          map={spineTexture}
-        />
-        <meshStandardMaterial
+        <meshStandardMaterial 
           attach="material-5"
-          map={spineTexture}
+          color="#000000"
         />
       </mesh>
 
@@ -136,31 +136,7 @@ export const Book = ({ ...props }) => {
       <group ref={frontCoverRef} position={[0, 0, SPINE_DEPTH / 2]}>
         <mesh castShadow receiveShadow position-x={-BOOK_WIDTH / 2}>
           <boxGeometry args={[BOOK_WIDTH, BOOK_HEIGHT, COVER_THICKNESS]} />
-          {/* Material array: [right, left, top, bottom, front, back] */}
-          <meshStandardMaterial
-            attach="material-0"
-            color="#2a2a2a"
-          />
-          <meshStandardMaterial
-            attach="material-1"
-            color="#1a1a1a"
-          />
-          <meshStandardMaterial
-            attach="material-2"
-            color="#1a1a1a"
-          />
-          <meshStandardMaterial
-            attach="material-3"
-            color="#1a1a1a"
-          />
-          <meshStandardMaterial
-            attach="material-4"
-            map={frontTexture}
-          />
-          <meshStandardMaterial
-            attach="material-5"
-            color="#f8f8f8"
-          />
+          <meshStandardMaterial map={frontTexture} />
         </mesh>
         
         {/* Front pages attached to front cover - INSIDE the book */}
@@ -174,31 +150,7 @@ export const Book = ({ ...props }) => {
       <group ref={backCoverRef} position={[0, 0, -SPINE_DEPTH / 2]}>
         <mesh castShadow receiveShadow position-x={-BOOK_WIDTH / 2}>
           <boxGeometry args={[BOOK_WIDTH, BOOK_HEIGHT, COVER_THICKNESS]} />
-          {/* Material array: [right, left, top, bottom, front, back] */}
-          <meshStandardMaterial
-            attach="material-0"
-            color="#2a2a2a"
-          />
-          <meshStandardMaterial
-            attach="material-1"
-            color="#1a1a1a"
-          />
-          <meshStandardMaterial
-            attach="material-2"
-            color="#1a1a1a"
-          />
-          <meshStandardMaterial
-            attach="material-3"
-            color="#1a1a1a"
-          />
-          <meshStandardMaterial
-            attach="material-4"
-            map={backTexture}
-          />
-          <meshStandardMaterial
-            attach="material-5"
-            color="#f8f8f8"
-          />
+          <meshStandardMaterial map={backTexture} />
         </mesh>
         
         {/* Back pages attached to back cover - INSIDE the book */}
