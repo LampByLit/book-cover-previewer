@@ -138,16 +138,33 @@ export const UploadComponent = ({ onUploadSuccess, onUploadError }) => {
     }));
   };
 
-  // Preset trim sizes for quick selection
+  // Preset trim sizes for quick selection - All 15 sizes from requirements
   const presetSizes = [
+    // Fiction
     { width: 4.25, height: 6.87, name: 'Fiction 1', category: 'Fiction' },
     { width: 5.0, height: 8.0, name: 'Fiction 2', category: 'Fiction' },
     { width: 5.25, height: 8.0, name: 'Fiction 3', category: 'Fiction' },
     { width: 5.5, height: 8.5, name: 'Fiction 4', category: 'Fiction' },
     { width: 6.0, height: 9.0, name: 'Fiction 5', category: 'Fiction' },
+
+    // Children's
     { width: 7.5, height: 7.5, name: 'Children 1', category: 'Children\'s' },
     { width: 7.0, height: 10.0, name: 'Children 2', category: 'Children\'s' },
-    { width: 10.0, height: 8.0, name: 'Children 3', category: 'Children\'s' }
+    { width: 10.0, height: 8.0, name: 'Children 3', category: 'Children\'s' },
+
+    // Textbooks
+    { width: 6.0, height: 9.0, name: 'Textbook 1', category: 'Textbooks' },
+    { width: 7.0, height: 10.0, name: 'Textbook 2', category: 'Textbooks' },
+    { width: 8.5, height: 11.0, name: 'Textbook 3', category: 'Textbooks' },
+
+    // Non-fiction
+    { width: 5.5, height: 8.5, name: 'Non-fiction 1', category: 'Non-fiction' },
+    { width: 6.0, height: 9.0, name: 'Non-fiction 2', category: 'Non-fiction' },
+    { width: 7.0, height: 10.0, name: 'Non-fiction 3', category: 'Non-fiction' },
+
+    // Memoir
+    { width: 5.25, height: 8.0, name: 'Memoir 1', category: 'Memoir' },
+    { width: 5.5, height: 8.5, name: 'Memoir 2', category: 'Memoir' }
   ];
 
   return (
@@ -161,7 +178,7 @@ export const UploadComponent = ({ onUploadSuccess, onUploadError }) => {
         </label>
 
         {/* Preset Sizes */}
-        <div className="grid grid-cols-2 gap-2 mb-3">
+        <div className="grid grid-cols-3 gap-2 mb-3">
           {presetSizes.map((size, index) => (
             <button
               key={index}

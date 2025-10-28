@@ -51,11 +51,7 @@ export const UI = ({ experienceRef }) => {
       <header className={`fixed top-0 left-0 right-0 z-20 pointer-events-none transition-opacity duration-300 ${
         sidebarVisible ? "md:opacity-100 opacity-0" : "opacity-100"
       }`}>
-        <div className="flex items-center justify-between p-4 md:p-6">
-          <div className="w-8 md:w-16" /> {/* Spacer for centering */}
-          <h1 className="text-black text-xl md:text-3xl font-bold tracking-wider whitespace-nowrap">
-            BOOK COVER PREVIEWER
-          </h1>
+        <div className="flex items-center justify-end p-4 md:p-6">
           <a
             href="https://lampbylit.com"
             target="_blank"
