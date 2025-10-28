@@ -84,36 +84,27 @@ export const Book = ({ ...props }) => {
   const spineTexture = coverTexture.clone();
   const backTexture = coverTexture.clone();
 
-  // UV mapping using pixel fractions and optional bleed
-  const BLEED_INCHES = 0.125; // 0.125" bleed on all edges
-  const bleedPxX = BLEED_INCHES * dpi;
-  const bleedPxY = BLEED_INCHES * dpi;
-
+  // UV mapping using pixel fractions without bleed compensation
   // Compute front/back widths in pixels: remaining area split evenly
   const frontWidthPx = Math.max(1, (actualImageWidth - spineWidthPx) / 2);
   const backWidthPx = frontWidthPx;
 
-  // Convert to UV fractions
-  const bleedUVx = (bleedPxX / actualImageWidth);
-  const bleedUVy = (bleedPxY / actualImageHeight);
-  const frontUVWidth = Math.max(0, (frontWidthPx - bleedPxX) / actualImageWidth);
-
-  // Front (left section)
-  frontTexture.repeat.set(frontUVWidth, Math.max(0, 1 - 2 * bleedUVy));
-  frontTexture.offset.set(bleedUVx, bleedUVy);
+  // Front (left section) maps exactly to its region
+  frontTexture.repeat.set(frontWidthPx / actualImageWidth, 1);
+  frontTexture.offset.set(0, 0);
   frontTexture.needsUpdate = true;
 
   // Spine (middle section)
   const spineUVWidth = Math.max(0, spineWidthPx / actualImageWidth);
-  spineTexture.repeat.set(spineUVWidth, Math.max(0, 1 - 2 * bleedUVy));
-  spineTexture.offset.set(frontWidthPx / actualImageWidth, bleedUVy);
+  spineTexture.repeat.set(spineUVWidth, 1);
+  spineTexture.offset.set(frontWidthPx / actualImageWidth, 0);
   spineTexture.needsUpdate = true;
 
   // Back (right section)
   const backStartUV = (frontWidthPx + spineWidthPx) / actualImageWidth;
-  const backUVWidth = Math.max(0, (backWidthPx - bleedPxX) / actualImageWidth);
-  backTexture.repeat.set(backUVWidth, Math.max(0, 1 - 2 * bleedUVy));
-  backTexture.offset.set(backStartUV, bleedUVy);
+  const backUVWidth = Math.max(0, backWidthPx / actualImageWidth);
+  backTexture.repeat.set(backUVWidth, 1);
+  backTexture.offset.set(backStartUV, 0);
   backTexture.needsUpdate = true;
 
   // Animate book opening/closing
