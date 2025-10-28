@@ -1,5 +1,7 @@
 import { atom, useAtom } from "jotai";
 import { useEffect, useState } from "react";
+import { UploadComponent } from "./UploadComponent";
+import { getAllCovers, getCoverDisplayInfo } from "../utils/coverData";
 
 // Automatically detect all images in the covers directory
 // Vite's import.meta.glob returns modules, we extract just the paths
@@ -8,35 +10,57 @@ const covers = Object.keys(coverModules)
   .map(path => path.replace('/public/covers/', ''))
   .sort(); // Sort alphabetically for consistent ordering
 
-export const coverAtom = atom(0); // Current selected cover index
+export const coverAtom = atom(null); // Current selected cover ID
 export const bookOpenAtom = atom(false); // Book open/closed state
 export const sidebarVisibleAtom = atom(true); // Thumbnail sidebar visibility
 
 export { covers };
 
 export const UI = ({ experienceRef }) => {
-  const [selectedCover, setSelectedCover] = useAtom(coverAtom);
+  const [selectedCoverId, setSelectedCoverId] = useAtom(coverAtom);
   const [bookOpen, setBookOpen] = useAtom(bookOpenAtom);
   const [sidebarVisible, setSidebarVisible] = useAtom(sidebarVisibleAtom);
   const [loading, setLoading] = useState(false);
+  const [uploadedCovers, setUploadedCovers] = useState([]);
 
-  const handleCoverChange = (index) => {
-    if (index === selectedCover) return;
+  // Load covers on component mount
+  useEffect(() => {
+    const covers = getAllCovers();
+    setUploadedCovers(covers);
+  }, []);
+
+  const handleCoverChange = (coverId) => {
+    if (coverId === selectedCoverId) return;
     setLoading(true);
     setTimeout(() => {
-      setSelectedCover(index);
+      setSelectedCoverId(coverId);
       setLoading(false);
     }, 300);
   };
 
+  const handleUploadSuccess = (newCover) => {
+    const covers = getAllCovers();
+    setUploadedCovers(covers);
+    setSelectedCoverId(newCover.id);
+  };
+
+  const handleUploadError = (error) => {
+    console.error('Upload error:', error);
+    // Could add toast notification here
+  };
+
   const handleNextCover = () => {
-    const nextIndex = (selectedCover + 1) % covers.length;
-    handleCoverChange(nextIndex);
+    if (uploadedCovers.length === 0) return;
+    const currentIndex = uploadedCovers.findIndex(cover => cover.id === selectedCoverId);
+    const nextIndex = (currentIndex + 1) % uploadedCovers.length;
+    handleCoverChange(uploadedCovers[nextIndex].id);
   };
 
   const handlePreviousCover = () => {
-    const prevIndex = selectedCover === 0 ? covers.length - 1 : selectedCover - 1;
-    handleCoverChange(prevIndex);
+    if (uploadedCovers.length === 0) return;
+    const currentIndex = uploadedCovers.findIndex(cover => cover.id === selectedCoverId);
+    const prevIndex = currentIndex === 0 ? uploadedCovers.length - 1 : currentIndex - 1;
+    handleCoverChange(uploadedCovers[prevIndex].id);
   };
 
   const handleCenterView = () => {
@@ -118,51 +142,73 @@ export const UI = ({ experienceRef }) => {
         style={{ width: "min(300px, 80vw)" }}
       >
         <div className="h-full overflow-y-auto pt-4 pb-8 px-4">
-          <div className="space-y-4">
-            {covers.map((cover, index) => (
-              <div key={index} className="relative group">
-              <button
-                onClick={() => handleCoverChange(index)}
-                className={`w-full pointer-events-auto transition-all duration-300 rounded-lg overflow-hidden ${
-                  selectedCover === index
-                    ? "ring-4 ring-blue-500 shadow-xl"
-                    : "ring-2 ring-gray-300 hover:ring-gray-500"
-                }`}
-              >
-                <img
-                  src={`/covers/${cover}`}
-                  alt={`Cover ${index + 1}`}
-                  className="w-full h-auto"
-                />
-              </button>
+          {/* Upload Component */}
+          <UploadComponent
+            onUploadSuccess={handleUploadSuccess}
+            onUploadError={handleUploadError}
+          />
 
-                {/* Full Image View Button */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation(); // Prevent triggering cover change
-                    window.open(`/covers/${cover}`, '_blank', 'noopener,noreferrer');
-                  }}
-                  className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-auto bg-black/60 hover:bg-black/80 text-white p-1.5 rounded-full text-xs"
-                  title="View full image in new tab"
-                  aria-label={`View full size of cover ${index + 1} in new tab`}
-                >
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                    <polyline points="15,3 21,3 21,9" />
-                    <line x1="10" y1="14" x2="21" y2="3" />
-                  </svg>
-                </button>
+          {/* Cover Thumbnails */}
+          <div className="space-y-4">
+            {uploadedCovers.length === 0 ? (
+              <div className="text-center text-gray-500 py-8">
+                <p>No covers uploaded yet</p>
+                <p className="text-sm">Upload a cover above to get started</p>
               </div>
-            ))}
+            ) : (
+              uploadedCovers.map((cover) => {
+                const displayInfo = getCoverDisplayInfo(cover);
+                return (
+                  <div key={cover.id} className="relative group">
+                    <button
+                      onClick={() => handleCoverChange(cover.id)}
+                      className={`w-full pointer-events-auto transition-all duration-300 rounded-lg overflow-hidden ${
+                        selectedCoverId === cover.id
+                          ? "ring-4 ring-blue-500 shadow-xl"
+                          : "ring-2 ring-gray-300 hover:ring-gray-500"
+                      }`}
+                    >
+                      <img
+                        src={`/covers/${cover.filename}`}
+                        alt={displayInfo.displayName}
+                        className="w-full h-auto"
+                      />
+                      {/* Trim size overlay */}
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs p-2">
+                        <div className="font-medium">{displayInfo.trimSizeDisplay}</div>
+                        <div className="text-gray-300">{displayInfo.presetName}</div>
+                      </div>
+                    </button>
+
+                    {/* Full Image View Button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent triggering cover change
+                        window.open(`/covers/${cover.filename}`, '_blank', 'noopener,noreferrer');
+                      }}
+                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-auto bg-black/60 hover:bg-black/80 text-white p-1.5 rounded-full text-xs"
+                      title="View full image in new tab"
+                      aria-label={`View full size of ${displayInfo.displayName} in new tab`}
+                    >
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                        <polyline points="15,3 21,3 21,9" />
+                        <line x1="10" y1="14" x2="21" y2="3" />
+                      </svg>
+                    </button>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
       </aside>
