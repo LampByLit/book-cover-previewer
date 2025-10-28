@@ -1,11 +1,16 @@
 import { Loader } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
-import { Suspense, useRef } from "react";
+import { Suspense, useRef, useEffect } from "react";
 import { Experience } from "./components/Experience";
 import { UI } from "./components/UI";
+import { initializeDataSystem } from "./utils/dataInit";
 
 function App() {
   const experienceRef = useRef();
+
+  useEffect(() => {
+    initializeDataSystem();
+  }, []);
 
   return (
     <>
