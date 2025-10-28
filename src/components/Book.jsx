@@ -11,6 +11,7 @@ import { degToRad } from "three/src/math/MathUtils.js";
 import { coverAtom, bookOpenAtom } from "./UI";
 import { getCoverById } from "../utils/coverData";
 import { inchesToUnits } from "../utils/trimSizes";
+import { getFileDataUrl } from "../utils/fileSystem";
 
 // Default fallback dimensions (5" × 8" book)
 const DEFAULT_TRIM_SIZE = { width: 5.0, height: 8.0 };
@@ -60,7 +61,14 @@ export const Book = ({ ...props }) => {
   const spineRef = useRef();
 
   // Load the selected cover texture
-  const coverTexture = useTexture(coverData ? `/covers/${coverData.filename}` : '/covers/0.png');
+  const coverDataUrl = coverData ? getFileDataUrl(coverData.id) : null;
+
+  // If no cover is selected or no data URL available, don't render the book
+  if (!coverDataUrl) {
+    return null;
+  }
+
+  const coverTexture = useTexture(coverDataUrl);
   coverTexture.colorSpace = SRGBColorSpace;
 
   // Calculate proper spine width from image dimensions
