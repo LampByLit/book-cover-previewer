@@ -73,21 +73,18 @@ export const Book = ({ ...props }) => {
   const actualImageWidth = coverTexture.image?.width || imageWidth;
   const actualImageHeight = coverTexture.image?.height || imageHeight;
 
-  // Infer DPI from image height and selected trim height when not provided
-  const inferredDpi = (() => {
-    const trimHeightInches = dimensions.trimSize.height;
-    if (coverData?.dpi && coverData.dpi > 0) return coverData.dpi;
-    if (actualImageHeight && trimHeightInches > 0) {
-      return Math.max(1, actualImageHeight / trimHeightInches);
-    }
-    return 300;
-  })();
+  // Derive cover widths and spine in pixels using aspect ratio (no fixed DPI required)
+  const trimWidthInches = dimensions.trimSize.width;
+  const trimHeightInches = dimensions.trimSize.height;
+  const coverAspect = trimWidthInches / trimHeightInches;
+  const frontWidthPx = Math.max(1, actualImageHeight * coverAspect);
+  const backWidthPx = frontWidthPx;
+  const spineWidthPx = Math.max(0, actualImageWidth - (frontWidthPx + backWidthPx));
 
-  // Compute cover and spine widths in pixels based on trim width and inferred DPI
-  const trimWidthPx = Math.max(1, dimensions.trimSize.width * inferredDpi);
-  const spineWidthPx = Math.max(0, actualImageWidth - 2 * trimWidthPx);
-
-  // 3D spine depth (inches) derived from pixel spine width and DPI
+  // Infer DPI from height only for converting spine thickness to inches (3D depth)
+  const inferredDpi = actualImageHeight && trimHeightInches > 0
+    ? Math.max(1, actualImageHeight / trimHeightInches)
+    : 300;
   const actualSpineDepth = inchesToUnits(spineWidthPx / inferredDpi);
 
   // Clone textures for each surface with proper UV mapping
@@ -96,20 +93,20 @@ export const Book = ({ ...props }) => {
   const backTexture = coverTexture.clone();
 
   // UV mapping using pixel fractions without bleed compensation
-  // Front (left section) maps exactly to its region: trimWidthPx
-  frontTexture.repeat.set(trimWidthPx / actualImageWidth, 1);
+  // Front (left section) maps exactly to its region
+  frontTexture.repeat.set(frontWidthPx / actualImageWidth, 1);
   frontTexture.offset.set(0, 0);
   frontTexture.needsUpdate = true;
 
   // Spine (middle section)
   const spineUVWidth = Math.max(0, spineWidthPx / actualImageWidth);
   spineTexture.repeat.set(spineUVWidth, 1);
-  spineTexture.offset.set(trimWidthPx / actualImageWidth, 0);
+  spineTexture.offset.set(frontWidthPx / actualImageWidth, 0);
   spineTexture.needsUpdate = true;
 
   // Back (right section)
-  const backStartUV = (trimWidthPx + spineWidthPx) / actualImageWidth;
-  const backUVWidth = Math.max(0, trimWidthPx / actualImageWidth);
+  const backStartUV = (frontWidthPx + spineWidthPx) / actualImageWidth;
+  const backUVWidth = Math.max(0, backWidthPx / actualImageWidth);
   backTexture.repeat.set(backUVWidth, 1);
   backTexture.offset.set(backStartUV, 0);
   backTexture.needsUpdate = true;
