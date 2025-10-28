@@ -40,9 +40,12 @@ export const UI = ({ experienceRef }) => {
   };
 
   const handleUploadSuccess = (newCover) => {
+    console.log('UI: handleUploadSuccess called with:', newCover);
     const covers = getAllCovers();
+    console.log('UI: all covers after upload:', covers);
     setUploadedCovers(covers);
     setSelectedCoverId(newCover.id);
+    console.log('UI: selected cover ID set to:', newCover.id);
   };
 
   const handleUploadError = (error) => {

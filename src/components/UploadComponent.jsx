@@ -90,13 +90,16 @@ export const UploadComponent = ({ onUploadSuccess, onUploadError }) => {
       } : selectedTrimSize;
 
       // Add cover to system
+      console.log('Adding cover with trim size:', finalTrimSize);
       const newCover = await addCover(file, finalTrimSize);
+      console.log('New cover added:', newCover);
 
       setUploadProgress(100);
       clearInterval(progressInterval);
 
       // Success callback
       if (onUploadSuccess) {
+        console.log('Calling onUploadSuccess with:', newCover);
         onUploadSuccess(newCover);
       }
 
