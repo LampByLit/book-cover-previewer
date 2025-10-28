@@ -63,31 +63,40 @@ export const Book = ({ ...props }) => {
   const coverTexture = useTexture(coverData ? `/covers/${coverData.filename}` : '/covers/0.png');
   coverTexture.colorSpace = SRGBColorSpace;
 
+  // Calculate proper spine width from image dimensions
+  // Expected format: front cover + spine + back cover
+  const actualImageWidth = coverTexture.image?.width || imageWidth;
+  const actualImageHeight = coverTexture.image?.height || imageHeight;
+
+  // Calculate spine width: total_width - (2 × trim_width)
+  // This gives us the actual spine content width in the image
+  const calculatedSpineWidth = Math.max(0.1, actualImageWidth - (2 * dimensions.trimSize.width));
+
+  // Update dimensions with calculated spine width
+  const actualSpineDepth = inchesToUnits(calculatedSpineWidth);
+
   // Clone textures for each surface with proper UV mapping
   const frontTexture = coverTexture.clone();
   const spineTexture = coverTexture.clone();
   const backTexture = coverTexture.clone();
 
   // Calculate UV mapping for wraparound texture with bleed adjustment
-  // Dynamic UV mapping based on trim size
   const BLEED_INCHES = 0.125; // 0.125" bleed on all edges
 
-  // Calculate bleed in UV space
-  const bleedHorizontalUV = BLEED_INCHES / imageWidth;
-  const bleedVerticalUV = BLEED_INCHES / imageHeight;
+  // Calculate bleed in UV space based on actual image dimensions
+  const bleedHorizontalUV = BLEED_INCHES / actualImageWidth;
+  const bleedVerticalUV = BLEED_INCHES / actualImageHeight;
 
   // Front cover UV mapping (left side of image)
-  const frontWidthUV = dimensions.trimSize.width / imageWidth;
-  const frontWidthTrimmedUV = (dimensions.trimSize.width - BLEED_INCHES) / imageWidth;
+  const frontWidthUV = dimensions.trimSize.width / actualImageWidth;
+  const frontWidthTrimmedUV = (dimensions.trimSize.width - BLEED_INCHES) / actualImageWidth;
 
   frontTexture.repeat.set(frontWidthTrimmedUV, 1 - 2 * bleedVerticalUV);
   frontTexture.offset.set(bleedHorizontalUV, bleedVerticalUV);
   frontTexture.needsUpdate = true;
 
-  // Spine UV mapping (middle section of image)
-  // For now, use a default spine width - this should be calculated from actual image
-  const spineWidthInches = 0.842; // Default spine width
-  const spineWidthUV = spineWidthInches / imageWidth;
+  // Spine UV mapping (middle section between front and back covers)
+  const spineWidthUV = calculatedSpineWidth / actualImageWidth;
 
   spineTexture.repeat.set(spineWidthUV, 1 - 2 * bleedVerticalUV);
   spineTexture.offset.set(frontWidthUV, bleedVerticalUV);
@@ -95,7 +104,7 @@ export const Book = ({ ...props }) => {
 
   // Back cover UV mapping (right side of image)
   const backStartUV = frontWidthUV + spineWidthUV;
-  const backWidthTrimmedUV = (dimensions.trimSize.width - BLEED_INCHES) / imageWidth;
+  const backWidthTrimmedUV = (dimensions.trimSize.width - BLEED_INCHES) / actualImageWidth;
 
   backTexture.repeat.set(backWidthTrimmedUV, 1 - 2 * bleedVerticalUV);
   backTexture.offset.set(backStartUV, bleedVerticalUV);
@@ -132,7 +141,7 @@ export const Book = ({ ...props }) => {
     <group {...props}>
       {/* Spine - runs along the Y axis at the binding edge */}
       <mesh ref={spineRef} castShadow receiveShadow position-x={0}>
-        <boxGeometry args={[COVER_THICKNESS, bookHeight, spineDepth]} />
+        <boxGeometry args={[COVER_THICKNESS, bookHeight, actualSpineDepth]} />
         {/* Material array: [+X, -X, +Y, -Y, +Z (front-facing), -Z (back-facing)] */}
         <meshStandardMaterial
           attach="material-0"
@@ -161,29 +170,29 @@ export const Book = ({ ...props }) => {
       </mesh>
 
       {/* Front Cover - pivot at spine (x=0), extends in -X direction, positioned at +Z */}
-      <group ref={frontCoverRef} position={[0, 0, spineDepth / 2]}>
+      <group ref={frontCoverRef} position={[0, 0, actualSpineDepth / 2]}>
         <mesh castShadow receiveShadow position-x={-bookWidth / 2}>
           <boxGeometry args={[bookWidth, bookHeight, COVER_THICKNESS]} />
           <meshStandardMaterial map={frontTexture} />
         </mesh>
 
         {/* Front pages attached to front cover - INSIDE the book */}
-        <mesh position={[-bookWidth / 2, 0, -(spineDepth / 4 + COVER_THICKNESS / 2)]}>
-          <boxGeometry args={[bookWidth * 0.98, bookHeight * 0.98, spineDepth / 2 - COVER_THICKNESS]} />
+        <mesh position={[-bookWidth / 2, 0, -(actualSpineDepth / 4 + COVER_THICKNESS / 2)]}>
+          <boxGeometry args={[bookWidth * 0.98, bookHeight * 0.98, actualSpineDepth / 2 - COVER_THICKNESS]} />
           <meshStandardMaterial color="#f5f5f5" />
         </mesh>
     </group>
 
       {/* Back Cover - pivot at spine (x=0), extends in -X direction, positioned at -Z */}
-      <group ref={backCoverRef} position={[0, 0, -spineDepth / 2]}>
+      <group ref={backCoverRef} position={[0, 0, -actualSpineDepth / 2]}>
         <mesh castShadow receiveShadow position-x={-bookWidth / 2}>
           <boxGeometry args={[bookWidth, bookHeight, COVER_THICKNESS]} />
           <meshStandardMaterial map={backTexture} />
         </mesh>
 
         {/* Back pages attached to back cover - INSIDE the book */}
-        <mesh position={[-bookWidth / 2, 0, (spineDepth / 4 + COVER_THICKNESS / 2)]}>
-          <boxGeometry args={[bookWidth * 0.98, bookHeight * 0.98, spineDepth / 2 - COVER_THICKNESS]} />
+        <mesh position={[-bookWidth / 2, 0, (actualSpineDepth / 4 + COVER_THICKNESS / 2)]}>
+          <boxGeometry args={[bookWidth * 0.98, bookHeight * 0.98, actualSpineDepth / 2 - COVER_THICKNESS]} />
           <meshStandardMaterial color="#f5f5f5" />
         </mesh>
       </group>
