@@ -2,7 +2,6 @@ import { atom, useAtom } from "jotai";
 import { useEffect, useState } from "react";
 import { UploadComponent } from "./UploadComponent";
 import { getAllCovers, getCoverDisplayInfo } from "../utils/coverData";
-import { getFileDataUrl } from "../utils/fileSystem";
 
 // Automatically detect all images in the covers directory
 // Vite's import.meta.glob returns modules, we extract just the paths
@@ -40,12 +39,9 @@ export const UI = ({ experienceRef }) => {
   };
 
   const handleUploadSuccess = (newCover) => {
-    console.log('UI: handleUploadSuccess called with:', newCover);
     const covers = getAllCovers();
-    console.log('UI: all covers after upload:', covers);
     setUploadedCovers(covers);
     setSelectedCoverId(newCover.id);
-    console.log('UI: selected cover ID set to:', newCover.id);
   };
 
   const handleUploadError = (error) => {
@@ -162,7 +158,6 @@ export const UI = ({ experienceRef }) => {
             ) : (
               uploadedCovers.map((cover) => {
                 const displayInfo = getCoverDisplayInfo(cover);
-                const coverImageUrl = getFileDataUrl(cover.id);
                 return (
                   <div key={cover.id} className="relative group">
                     <button
@@ -174,7 +169,7 @@ export const UI = ({ experienceRef }) => {
                       }`}
                     >
                       <img
-                        src={coverImageUrl}
+                        src={`/covers/${cover.filename}`}
                         alt={displayInfo.displayName}
                         className="w-full h-auto"
                       />
@@ -189,9 +184,7 @@ export const UI = ({ experienceRef }) => {
                     <button
                       onClick={(e) => {
                         e.stopPropagation(); // Prevent triggering cover change
-                        if (coverImageUrl) {
-                          window.open(coverImageUrl, '_blank', 'noopener,noreferrer');
-                        }
+                        window.open(`/covers/${cover.filename}`, '_blank', 'noopener,noreferrer');
                       }}
                       className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-auto bg-black/60 hover:bg-black/80 text-white p-1.5 rounded-full text-xs"
                       title="View full image in new tab"

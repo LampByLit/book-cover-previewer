@@ -4,7 +4,7 @@
  * Manages cover metadata, CRUD operations, and data persistence.
  */
 
-import { loadMetadata, saveMetadata, generateFileId, saveUploadedFile } from './fileSystem.js';
+import { loadMetadata, saveMetadata, generateFileId } from './fileSystem.js';
 import { findPresetByDimensions, formatTrimSize } from './trimSizes.js';
 
 /**
@@ -42,11 +42,6 @@ export const addCover = async (file, trimSize) => {
   const covers = getAllCovers();
   const id = generateFileId();
 
-  // Save the actual file data first
-  console.log('Saving uploaded file with ID:', id);
-  await saveUploadedFile(file, id);
-  console.log('File saved successfully');
-
   const newCover = {
     id,
     filename: `${id}.png`, // We'll convert to PNG for consistency
@@ -62,7 +57,6 @@ export const addCover = async (file, trimSize) => {
   covers.push(newCover);
   await saveMetadata(covers);
 
-  console.log('Cover metadata saved, returning newCover:', newCover);
   return newCover;
 };
 

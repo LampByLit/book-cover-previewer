@@ -11,7 +11,6 @@ import { degToRad } from "three/src/math/MathUtils.js";
 import { coverAtom, bookOpenAtom } from "./UI";
 import { getCoverById } from "../utils/coverData";
 import { inchesToUnits } from "../utils/trimSizes";
-import { getFileDataUrl } from "../utils/fileSystem";
 
 // Default fallback dimensions (5" × 8" book)
 const DEFAULT_TRIM_SIZE = { width: 5.0, height: 8.0 };
@@ -24,10 +23,7 @@ export const Book = ({ ...props }) => {
 
   // Get current cover data and calculate dynamic dimensions
   const coverData = useMemo(() => {
-    console.log('Book: getting cover data for selectedCoverId:', selectedCover);
-    const data = getCoverById(selectedCover);
-    console.log('Book: cover data retrieved:', data);
-    return data;
+    return getCoverById(selectedCover);
   }, [selectedCover]);
 
   // Calculate dynamic dimensions based on trim size
@@ -64,17 +60,7 @@ export const Book = ({ ...props }) => {
   const spineRef = useRef();
 
   // Load the selected cover texture
-  const coverDataUrl = coverData ? getFileDataUrl(coverData.id) : null;
-  console.log('Book: coverDataUrl for cover', coverData?.id, ':', coverDataUrl ? 'found' : 'not found');
-
-  // If no cover is selected or no data URL available, don't render the book
-  if (!coverDataUrl) {
-    console.log('Book: no coverDataUrl, not rendering book');
-    return null;
-  }
-
-  console.log('Book: loading texture from:', coverDataUrl.substring(0, 50) + '...');
-  const coverTexture = useTexture(coverDataUrl);
+  const coverTexture = useTexture(coverData ? `/covers/${coverData.filename}` : '/covers/0.png');
   coverTexture.colorSpace = SRGBColorSpace;
 
   // Calculate proper spine width from image dimensions
