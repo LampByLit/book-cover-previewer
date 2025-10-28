@@ -2,44 +2,65 @@ import { useTexture } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useAtom } from "jotai";
 import { easing } from "maath";
-import { useRef } from "react";
+import { useRef, useMemo } from "react";
 import {
   MeshStandardMaterial,
   SRGBColorSpace,
 } from "three";
 import { degToRad } from "three/src/math/MathUtils.js";
-import { coverAtom, bookOpenAtom, covers } from "./UI";
+import { coverAtom, bookOpenAtom } from "./UI";
+import { getCoverById } from "../utils/coverData";
+import { inchesToUnits } from "../utils/trimSizes";
 
-// Book dimensions based on actual trim size: 8" (height) × 5" (width) × 0.842" (spine depth)
-// The book opens along the 8" edge - spine runs along the 8" dimension
-// Scaling down to fit in scene (1 unit = 1 inch scaled to 0.2)
-const BOOK_HEIGHT = 1.6; // 8" * 0.2 (vertical dimension - spine runs along this)
-const BOOK_WIDTH = 1.0; // 5" * 0.2 (horizontal width of each cover)
-const SPINE_DEPTH = 0.168; // 0.842" * 0.2 (thickness of the spine)
+// Default fallback dimensions (5" × 8" book)
+const DEFAULT_TRIM_SIZE = { width: 5.0, height: 8.0 };
 const COVER_THICKNESS = 0.008; // Thin cover material
-
-// Cover image has front (5") + spine (0.842") + back (5") = 10.842" total width
-// But the HEIGHT of the cover image is 8.25" (matches the 8" book height)
-const COVER_TOTAL_WIDTH = 2.168; // 10.842" * 0.2
-const COVER_IMAGE_HEIGHT = 1.65; // 8.25" * 0.2
-
 const easingFactor = 0.08;
-
-// Preload all cover textures
-covers.forEach((cover) => {
-  useTexture.preload(`/covers/${cover}`);
-});
 
 export const Book = ({ ...props }) => {
   const [selectedCover] = useAtom(coverAtom);
   const [bookOpen] = useAtom(bookOpenAtom);
+
+  // Get current cover data and calculate dynamic dimensions
+  const coverData = useMemo(() => {
+    return getCoverById(selectedCover);
+  }, [selectedCover]);
+
+  // Calculate dynamic dimensions based on trim size
+  const dimensions = useMemo(() => {
+    const trimSize = coverData?.trimSize || DEFAULT_TRIM_SIZE;
+
+    // Convert inches to 3D units (0.2 units per inch)
+    const bookWidth = inchesToUnits(trimSize.width);
+    const bookHeight = inchesToUnits(trimSize.height);
+
+    // For now, use a default spine depth - this will be calculated from image later
+    // In a real implementation, we'd analyze the uploaded image dimensions
+    const spineDepth = inchesToUnits(0.842); // Default spine depth
+
+    // Image dimensions (these would be calculated from the actual uploaded image)
+    // For now, assume a standard layout: front + spine + back
+    const imageWidth = trimSize.width * 3; // Rough estimate: front + spine + back
+    const imageHeight = trimSize.height * 1.03; // Slight bleed
+
+    return {
+      bookWidth,
+      bookHeight,
+      spineDepth,
+      imageWidth,
+      imageHeight,
+      trimSize
+    };
+  }, [coverData]);
+
+  const { bookWidth, bookHeight, spineDepth, imageWidth, imageHeight } = dimensions;
   
   const frontCoverRef = useRef();
   const backCoverRef = useRef();
   const spineRef = useRef();
 
   // Load the selected cover texture
-  const coverTexture = useTexture(`/covers/${covers[selectedCover]}`);
+  const coverTexture = useTexture(coverData ? `/covers/${coverData.filename}` : '/covers/0.png');
   coverTexture.colorSpace = SRGBColorSpace;
 
   // Clone textures for each surface with proper UV mapping
@@ -48,29 +69,36 @@ export const Book = ({ ...props }) => {
   const backTexture = coverTexture.clone();
 
   // Calculate UV mapping for wraparound texture with bleed adjustment
-  // Cover image: 10.842" total (5" front + 0.842" spine + 5" back) × 8.25" height
-  // Bleed: 0.125" to remove from outer edges only
-  
-  const BLEED_HORIZONTAL = 0.125 / 10.842; // ~0.01153 in UV space
-  const BLEED_VERTICAL = 0.125 / 8.25;     // ~0.01515 in UV space
-  
-  // Front cover: remove bleed from LEFT (outer edge), TOP, and BOTTOM
-  const frontWidth = 5 / 10.842;
-  const frontWidthTrimmed = (5 - 0.125) / 10.842; // Remove 0.125" from left
-  frontTexture.repeat.set(frontWidthTrimmed, 1 - 2 * BLEED_VERTICAL);
-  frontTexture.offset.set(BLEED_HORIZONTAL, BLEED_VERTICAL);
+  // Dynamic UV mapping based on trim size
+  const BLEED_INCHES = 0.125; // 0.125" bleed on all edges
+
+  // Calculate bleed in UV space
+  const bleedHorizontalUV = BLEED_INCHES / imageWidth;
+  const bleedVerticalUV = BLEED_INCHES / imageHeight;
+
+  // Front cover UV mapping (left side of image)
+  const frontWidthUV = dimensions.trimSize.width / imageWidth;
+  const frontWidthTrimmedUV = (dimensions.trimSize.width - BLEED_INCHES) / imageWidth;
+
+  frontTexture.repeat.set(frontWidthTrimmedUV, 1 - 2 * bleedVerticalUV);
+  frontTexture.offset.set(bleedHorizontalUV, bleedVerticalUV);
   frontTexture.needsUpdate = true;
 
-  // Spine: remove bleed from TOP and BOTTOM only (not left/right - connects to covers)
-  const spineWidth = 0.842 / 10.842;
-  spineTexture.repeat.set(spineWidth, 1 - 2 * BLEED_VERTICAL);
-  spineTexture.offset.set(frontWidth, BLEED_VERTICAL);
+  // Spine UV mapping (middle section of image)
+  // For now, use a default spine width - this should be calculated from actual image
+  const spineWidthInches = 0.842; // Default spine width
+  const spineWidthUV = spineWidthInches / imageWidth;
+
+  spineTexture.repeat.set(spineWidthUV, 1 - 2 * bleedVerticalUV);
+  spineTexture.offset.set(frontWidthUV, bleedVerticalUV);
   spineTexture.needsUpdate = true;
 
-  // Back cover: remove bleed from RIGHT (outer edge), TOP, and BOTTOM
-  const backWidthTrimmed = (5 - 0.125) / 10.842; // Remove 0.125" from right
-  backTexture.repeat.set(backWidthTrimmed, 1 - 2 * BLEED_VERTICAL);
-  backTexture.offset.set(frontWidth + spineWidth, BLEED_VERTICAL);
+  // Back cover UV mapping (right side of image)
+  const backStartUV = frontWidthUV + spineWidthUV;
+  const backWidthTrimmedUV = (dimensions.trimSize.width - BLEED_INCHES) / imageWidth;
+
+  backTexture.repeat.set(backWidthTrimmedUV, 1 - 2 * bleedVerticalUV);
+  backTexture.offset.set(backStartUV, bleedVerticalUV);
   backTexture.needsUpdate = true;
 
   // Animate book opening/closing
@@ -102,60 +130,60 @@ export const Book = ({ ...props }) => {
 
   return (
     <group {...props}>
-      {/* Spine - runs along the Y axis (8" / 1.6 units tall) at the binding edge */}
+      {/* Spine - runs along the Y axis at the binding edge */}
       <mesh ref={spineRef} castShadow receiveShadow position-x={0}>
-        <boxGeometry args={[COVER_THICKNESS, BOOK_HEIGHT, SPINE_DEPTH]} />
+        <boxGeometry args={[COVER_THICKNESS, bookHeight, spineDepth]} />
         {/* Material array: [+X, -X, +Y, -Y, +Z (front-facing), -Z (back-facing)] */}
-        <meshStandardMaterial 
+        <meshStandardMaterial
           attach="material-0"
           map={spineTexture}
         />
-        <meshStandardMaterial 
+        <meshStandardMaterial
           attach="material-1"
           map={spineTexture}
         />
-        <meshStandardMaterial 
+        <meshStandardMaterial
           attach="material-2"
           map={spineTexture}
         />
-        <meshStandardMaterial 
+        <meshStandardMaterial
           attach="material-3"
           map={spineTexture}
         />
-        <meshStandardMaterial 
+        <meshStandardMaterial
           attach="material-4"
           color="#000000"
         />
-        <meshStandardMaterial 
+        <meshStandardMaterial
           attach="material-5"
           color="#000000"
         />
       </mesh>
 
       {/* Front Cover - pivot at spine (x=0), extends in -X direction, positioned at +Z */}
-      <group ref={frontCoverRef} position={[0, 0, SPINE_DEPTH / 2]}>
-        <mesh castShadow receiveShadow position-x={-BOOK_WIDTH / 2}>
-          <boxGeometry args={[BOOK_WIDTH, BOOK_HEIGHT, COVER_THICKNESS]} />
+      <group ref={frontCoverRef} position={[0, 0, spineDepth / 2]}>
+        <mesh castShadow receiveShadow position-x={-bookWidth / 2}>
+          <boxGeometry args={[bookWidth, bookHeight, COVER_THICKNESS]} />
           <meshStandardMaterial map={frontTexture} />
         </mesh>
-        
+
         {/* Front pages attached to front cover - INSIDE the book */}
-        <mesh position={[-BOOK_WIDTH / 2, 0, -(SPINE_DEPTH / 4 + COVER_THICKNESS / 2)]}>
-          <boxGeometry args={[BOOK_WIDTH * 0.98, BOOK_HEIGHT * 0.98, SPINE_DEPTH / 2 - COVER_THICKNESS]} />
+        <mesh position={[-bookWidth / 2, 0, -(spineDepth / 4 + COVER_THICKNESS / 2)]}>
+          <boxGeometry args={[bookWidth * 0.98, bookHeight * 0.98, spineDepth / 2 - COVER_THICKNESS]} />
           <meshStandardMaterial color="#f5f5f5" />
         </mesh>
     </group>
 
       {/* Back Cover - pivot at spine (x=0), extends in -X direction, positioned at -Z */}
-      <group ref={backCoverRef} position={[0, 0, -SPINE_DEPTH / 2]}>
-        <mesh castShadow receiveShadow position-x={-BOOK_WIDTH / 2}>
-          <boxGeometry args={[BOOK_WIDTH, BOOK_HEIGHT, COVER_THICKNESS]} />
+      <group ref={backCoverRef} position={[0, 0, -spineDepth / 2]}>
+        <mesh castShadow receiveShadow position-x={-bookWidth / 2}>
+          <boxGeometry args={[bookWidth, bookHeight, COVER_THICKNESS]} />
           <meshStandardMaterial map={backTexture} />
         </mesh>
-        
+
         {/* Back pages attached to back cover - INSIDE the book */}
-        <mesh position={[-BOOK_WIDTH / 2, 0, (SPINE_DEPTH / 4 + COVER_THICKNESS / 2)]}>
-          <boxGeometry args={[BOOK_WIDTH * 0.98, BOOK_HEIGHT * 0.98, SPINE_DEPTH / 2 - COVER_THICKNESS]} />
+        <mesh position={[-bookWidth / 2, 0, (spineDepth / 4 + COVER_THICKNESS / 2)]}>
+          <boxGeometry args={[bookWidth * 0.98, bookHeight * 0.98, spineDepth / 2 - COVER_THICKNESS]} />
           <meshStandardMaterial color="#f5f5f5" />
         </mesh>
       </group>
