@@ -5,6 +5,7 @@
  */
 
 import { ensureDataDirectories } from './fileSystem.js';
+import { loadMetadata, saveMetadata } from './fileSystem.js';
 
 /**
  * Initialize the data storage system
@@ -18,6 +19,33 @@ export const initializeDataSystem = async () => {
     const directoriesReady = await ensureDataDirectories();
     if (!directoriesReady) {
       throw new Error('Failed to initialize data directories');
+    }
+
+    // Seed bundled covers on first run
+    const existing = loadMetadata();
+    if (!Array.isArray(existing) || existing.length === 0) {
+      try {
+        const modules = import.meta.glob('/public/covers/*.{png,jpg,jpeg,webp}', { eager: true, as: 'url' });
+        const entries = Object.entries(modules).map(([path, url]) => {
+          const filename = path.replace('/public/covers/', '');
+          return {
+            id: `bundled_${filename}`,
+            filename,
+            originalName: filename,
+            externalUrl: url,
+            trimSize: { width: 5.0, height: 8.0 },
+            uploadedAt: new Date().toISOString(),
+            fileSize: 0,
+            source: 'bundled'
+          };
+        });
+        if (entries.length > 0) {
+          await saveMetadata(entries);
+          console.log(`Seeded ${entries.length} bundled covers`);
+        }
+      } catch (seedErr) {
+        console.warn('Bundled cover seeding skipped:', seedErr);
+      }
     }
 
     console.log('✅ Data system initialized successfully');

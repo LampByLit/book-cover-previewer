@@ -15,6 +15,8 @@ export const UploadComponent = ({ onUploadSuccess, onUploadError }) => {
   const [selectedTrimSize, setSelectedTrimSize] = useState({ width: 5.0, height: 8.0 });
   const [customTrimSize, setCustomTrimSize] = useState({ width: '', height: '' });
   const [useCustomSize, setUseCustomSize] = useState(false);
+  const [spineWidthInches, setSpineWidthInches] = useState('');
+  const [dpi, setDpi] = useState('300');
   const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
 
@@ -89,8 +91,11 @@ export const UploadComponent = ({ onUploadSuccess, onUploadError }) => {
         height: parseFloat(customTrimSize.height)
       } : selectedTrimSize;
 
-      // Add cover to system
-      const newCover = await addCover(file, finalTrimSize);
+      // Add cover to system (include optional spine width and dpi)
+      const options = {};
+      if (spineWidthInches !== '') options.spineWidthInches = parseFloat(spineWidthInches);
+      if (dpi !== '') options.dpi = parseFloat(dpi);
+      const newCover = await addCover(file, finalTrimSize, options);
 
       setUploadProgress(100);
       clearInterval(progressInterval);
@@ -119,6 +124,8 @@ export const UploadComponent = ({ onUploadSuccess, onUploadError }) => {
     setError(null);
     setUploadProgress(0);
     setIsUploading(false);
+    setSpineWidthInches('');
+    setDpi('300');
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -246,6 +253,38 @@ export const UploadComponent = ({ onUploadSuccess, onUploadError }) => {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Optional rendering hints */}
+      <div className="mb-4 grid grid-cols-2 gap-2">
+        <div>
+          <label className="block text-xs text-gray-600 mb-1">Spine width (inches, optional)</label>
+          <input
+            type="number"
+            step="0.001"
+            min="0"
+            max="5"
+            value={spineWidthInches}
+            onChange={(e) => setSpineWidthInches(e.target.value)}
+            className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md"
+            placeholder="0.84"
+            disabled={isUploading}
+          />
+        </div>
+        <div>
+          <label className="block text-xs text-gray-600 mb-1">Image DPI (optional)</label>
+          <input
+            type="number"
+            step="1"
+            min="72"
+            max="1200"
+            value={dpi}
+            onChange={(e) => setDpi(e.target.value)}
+            className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md"
+            placeholder="300"
+            disabled={isUploading}
+          />
+        </div>
       </div>
 
       {/* Upload Area */}

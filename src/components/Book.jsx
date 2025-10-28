@@ -9,7 +9,7 @@ import {
 } from "three";
 import { degToRad } from "three/src/math/MathUtils.js";
 import { coverAtom, bookOpenAtom } from "./UI";
-import { getCoverById } from "../utils/coverData";
+import { getCoverById, getCoverImageUrlById } from "../utils/coverData";
 import { inchesToUnits } from "../utils/trimSizes";
 
 // Default fallback dimensions (5" × 8" book)
@@ -59,8 +59,13 @@ export const Book = ({ ...props }) => {
   const backCoverRef = useRef();
   const spineRef = useRef();
 
+  // Resolve image URL (uploaded data URL or bundled asset)
+  const imageUrl = useMemo(() => {
+    return selectedCover ? getCoverImageUrlById(selectedCover) : null;
+  }, [selectedCover]);
+
   // Load the selected cover texture
-  const coverTexture = useTexture(coverData ? `/covers/${coverData.filename}` : '/covers/0.png');
+  const coverTexture = useTexture(imageUrl || '/images/wawasensei-white.png');
   coverTexture.colorSpace = SRGBColorSpace;
 
   // Calculate proper spine width from image dimensions
@@ -68,46 +73,47 @@ export const Book = ({ ...props }) => {
   const actualImageWidth = coverTexture.image?.width || imageWidth;
   const actualImageHeight = coverTexture.image?.height || imageHeight;
 
-  // Calculate spine width: total_width - (2 × trim_width)
-  // This gives us the actual spine content width in the image
-  const calculatedSpineWidth = Math.max(0.1, actualImageWidth - (2 * dimensions.trimSize.width));
-
-  // Update dimensions with calculated spine width
-  const actualSpineDepth = inchesToUnits(calculatedSpineWidth);
+  // Use metadata-driven spine width (inches) and dpi when available
+  const dpi = coverData?.dpi || 300;
+  const spineWidthInches = typeof coverData?.spineWidthInches === 'number' ? coverData.spineWidthInches : 0.842;
+  const spineWidthPx = Math.max(0, spineWidthInches * dpi);
+  const actualSpineDepth = inchesToUnits(spineWidthInches);
 
   // Clone textures for each surface with proper UV mapping
   const frontTexture = coverTexture.clone();
   const spineTexture = coverTexture.clone();
   const backTexture = coverTexture.clone();
 
-  // Calculate UV mapping for wraparound texture with bleed adjustment
+  // UV mapping using pixel fractions and optional bleed
   const BLEED_INCHES = 0.125; // 0.125" bleed on all edges
+  const bleedPxX = BLEED_INCHES * dpi;
+  const bleedPxY = BLEED_INCHES * dpi;
 
-  // Calculate bleed in UV space based on actual image dimensions
-  const bleedHorizontalUV = BLEED_INCHES / actualImageWidth;
-  const bleedVerticalUV = BLEED_INCHES / actualImageHeight;
+  // Compute front/back widths in pixels: remaining area split evenly
+  const frontWidthPx = Math.max(1, (actualImageWidth - spineWidthPx) / 2);
+  const backWidthPx = frontWidthPx;
 
-  // Front cover UV mapping (left side of image)
-  const frontWidthUV = dimensions.trimSize.width / actualImageWidth;
-  const frontWidthTrimmedUV = (dimensions.trimSize.width - BLEED_INCHES) / actualImageWidth;
+  // Convert to UV fractions
+  const bleedUVx = (bleedPxX / actualImageWidth);
+  const bleedUVy = (bleedPxY / actualImageHeight);
+  const frontUVWidth = Math.max(0, (frontWidthPx - bleedPxX) / actualImageWidth);
 
-  frontTexture.repeat.set(frontWidthTrimmedUV, 1 - 2 * bleedVerticalUV);
-  frontTexture.offset.set(bleedHorizontalUV, bleedVerticalUV);
+  // Front (left section)
+  frontTexture.repeat.set(frontUVWidth, Math.max(0, 1 - 2 * bleedUVy));
+  frontTexture.offset.set(bleedUVx, bleedUVy);
   frontTexture.needsUpdate = true;
 
-  // Spine UV mapping (middle section between front and back covers)
-  const spineWidthUV = calculatedSpineWidth / actualImageWidth;
-
-  spineTexture.repeat.set(spineWidthUV, 1 - 2 * bleedVerticalUV);
-  spineTexture.offset.set(frontWidthUV, bleedVerticalUV);
+  // Spine (middle section)
+  const spineUVWidth = Math.max(0, spineWidthPx / actualImageWidth);
+  spineTexture.repeat.set(spineUVWidth, Math.max(0, 1 - 2 * bleedUVy));
+  spineTexture.offset.set(frontWidthPx / actualImageWidth, bleedUVy);
   spineTexture.needsUpdate = true;
 
-  // Back cover UV mapping (right side of image)
-  const backStartUV = frontWidthUV + spineWidthUV;
-  const backWidthTrimmedUV = (dimensions.trimSize.width - BLEED_INCHES) / actualImageWidth;
-
-  backTexture.repeat.set(backWidthTrimmedUV, 1 - 2 * bleedVerticalUV);
-  backTexture.offset.set(backStartUV, bleedVerticalUV);
+  // Back (right section)
+  const backStartUV = (frontWidthPx + spineWidthPx) / actualImageWidth;
+  const backUVWidth = Math.max(0, (backWidthPx - bleedPxX) / actualImageWidth);
+  backTexture.repeat.set(backUVWidth, Math.max(0, 1 - 2 * bleedUVy));
+  backTexture.offset.set(backStartUV, bleedUVy);
   backTexture.needsUpdate = true;
 
   // Animate book opening/closing

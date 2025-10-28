@@ -1,7 +1,7 @@
 import { atom, useAtom } from "jotai";
 import { useEffect, useState } from "react";
 import { UploadComponent } from "./UploadComponent";
-import { getAllCovers, getCoverDisplayInfo } from "../utils/coverData";
+import { getAllCovers, getCoverDisplayInfo, getCoverImageUrl } from "../utils/coverData";
 
 // Automatically detect all images in the covers directory
 // Vite's import.meta.glob returns modules, we extract just the paths
@@ -27,6 +27,10 @@ export const UI = ({ experienceRef }) => {
   useEffect(() => {
     const covers = getAllCovers();
     setUploadedCovers(covers);
+    // Default selection on first load
+    if (!selectedCoverId && covers.length > 0) {
+      setSelectedCoverId(covers[0].id);
+    }
   }, []);
 
   const handleCoverChange = (coverId) => {
@@ -169,7 +173,7 @@ export const UI = ({ experienceRef }) => {
                       }`}
                     >
                       <img
-                        src={`/covers/${cover.filename}`}
+                        src={getCoverImageUrl(cover) || "/images/wawasensei-white.png"}
                         alt={displayInfo.displayName}
                         className="w-full h-auto"
                       />
@@ -184,7 +188,8 @@ export const UI = ({ experienceRef }) => {
                     <button
                       onClick={(e) => {
                         e.stopPropagation(); // Prevent triggering cover change
-                        window.open(`/covers/${cover.filename}`, '_blank', 'noopener,noreferrer');
+                        const url = getCoverImageUrl(cover) || `/images/wawasensei-white.png`;
+                        window.open(url, '_blank', 'noopener,noreferrer');
                       }}
                       className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-auto bg-black/60 hover:bg-black/80 text-white p-1.5 rounded-full text-xs"
                       title="View full image in new tab"

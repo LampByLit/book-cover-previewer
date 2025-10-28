@@ -4,7 +4,7 @@
  * Manages cover metadata, CRUD operations, and data persistence.
  */
 
-import { loadMetadata, saveMetadata, generateFileId } from './fileSystem.js';
+import { loadMetadata, saveMetadata, generateFileId, getFileDataUrl, saveUploadedFile } from './fileSystem.js';
 import { findPresetByDimensions, formatTrimSize } from './trimSizes.js';
 
 /**
@@ -38,7 +38,7 @@ export const getCoverById = (id) => {
 /**
  * Add new cover
  */
-export const addCover = async (file, trimSize) => {
+export const addCover = async (file, trimSize, options = {}) => {
   const covers = getAllCovers();
   const id = generateFileId();
 
@@ -51,8 +51,15 @@ export const addCover = async (file, trimSize) => {
       height: parseFloat(trimSize.height)
     },
     uploadedAt: new Date().toISOString(),
-    fileSize: file.size
+    fileSize: file.size,
+    source: 'uploaded',
+    // Optional rendering hints
+    spineWidthInches: typeof options.spineWidthInches === 'number' ? options.spineWidthInches : undefined,
+    dpi: typeof options.dpi === 'number' ? options.dpi : undefined
   };
+
+  // Persist file data as Data URL in localStorage for local dev
+  await saveUploadedFile(file, id);
 
   covers.push(newCover);
   await saveMetadata(covers);
@@ -200,4 +207,22 @@ export const getCoverStats = () => {
     categories,
     lastUpload: covers.length > 0 ? new Date(Math.max(...covers.map(c => new Date(c.uploadedAt)))) : null
   };
+};
+
+/**
+ * Get image URL for a cover (handles uploaded data URLs and bundled assets)
+ */
+export const getCoverImageUrl = (cover) => {
+  if (!cover) return null;
+  if (cover.externalUrl) return cover.externalUrl;
+  // For uploaded covers, fetch data URL from localStorage
+  return getFileDataUrl(cover.id);
+};
+
+/**
+ * Convenience: get image URL by ID
+ */
+export const getCoverImageUrlById = (id) => {
+  const cover = getCoverById(id);
+  return getCoverImageUrl(cover);
 };
