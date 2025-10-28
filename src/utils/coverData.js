@@ -215,8 +215,8 @@ export const getCoverStats = () => {
 export const getCoverImageUrl = (cover) => {
   if (!cover) return null;
   if (cover.externalUrl) return cover.externalUrl;
-  // For uploaded covers, fetch data URL from localStorage
-  return getFileDataUrl(cover.id);
+  // Uploaded covers require async lookup; return null synchronously
+  return null;
 };
 
 /**
@@ -225,4 +225,14 @@ export const getCoverImageUrl = (cover) => {
 export const getCoverImageUrlById = (id) => {
   const cover = getCoverById(id);
   return getCoverImageUrl(cover);
+};
+
+/**
+ * Async retrieval for uploaded cover URLs (data URLs from IndexedDB)
+ */
+export const getCoverImageUrlByIdAsync = async (id) => {
+  const cover = getCoverById(id);
+  if (!cover) return null;
+  if (cover.externalUrl) return cover.externalUrl;
+  return await getFileDataUrl(cover.id);
 };

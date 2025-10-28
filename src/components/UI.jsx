@@ -2,6 +2,7 @@ import { atom, useAtom } from "jotai";
 import { useEffect, useState } from "react";
 import { UploadComponent } from "./UploadComponent";
 import { getAllCovers, getCoverDisplayInfo, getCoverImageUrl } from "../utils/coverData";
+import { useCoverImageUrl } from "../utils/useCoverImageUrl";
 
 // Automatically detect all images in the covers directory
 // Vite's import.meta.glob returns modules, we extract just the paths
@@ -172,11 +173,7 @@ export const UI = ({ experienceRef }) => {
                           : "ring-2 ring-gray-300 hover:ring-gray-500"
                       }`}
                     >
-                      <img
-                        src={getCoverImageUrl(cover) || "/images/wawasensei-white.png"}
-                        alt={displayInfo.displayName}
-                        className="w-full h-auto"
-                      />
+                      <CoverImage cover={cover} alt={displayInfo.displayName} />
                       {/* Trim size overlay */}
                       <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs p-2">
                         <div className="font-medium">{displayInfo.trimSizeDisplay}</div>
@@ -188,7 +185,9 @@ export const UI = ({ experienceRef }) => {
                     <button
                       onClick={(e) => {
                         e.stopPropagation(); // Prevent triggering cover change
-                        const url = getCoverImageUrl(cover) || `/images/wawasensei-white.png`;
+                        const syncUrl = getCoverImageUrl(cover);
+                        const asyncUrl = syncUrl || (cover?.id ? window.__lastCoverUrlCache?.[cover.id] : null);
+                        const url = asyncUrl || `/images/wawasensei-white.png`;
                         window.open(url, '_blank', 'noopener,noreferrer');
                       }}
                       className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-auto bg-black/60 hover:bg-black/80 text-white p-1.5 rounded-full text-xs"
@@ -313,5 +312,25 @@ export const UI = ({ experienceRef }) => {
         </div>
       )}
     </>
+  );
+};
+
+const CoverImage = ({ cover, alt }) => {
+  const urlSync = getCoverImageUrl(cover);
+  const urlAsync = useCoverImageUrl(cover?.id);
+
+  // Cache last known async URL globally for the 'View full image' button
+  if (cover?.id) {
+    window.__lastCoverUrlCache = window.__lastCoverUrlCache || {};
+    if (urlAsync) window.__lastCoverUrlCache[cover.id] = urlAsync;
+  }
+
+  const src = urlSync || urlAsync || "/images/wawasensei-white.png";
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className="w-full h-auto"
+    />
   );
 };

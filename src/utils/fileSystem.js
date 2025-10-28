@@ -9,6 +9,61 @@ const DATA_DIR = '/data';
 const COVERS_DIR = `${DATA_DIR}/covers`;
 const METADATA_FILE = `${DATA_DIR}/metadata.json`;
 
+// IndexedDB configuration for storing uploaded image data
+const IDB_NAME = 'bookCoverPreviewerDB';
+const IDB_VERSION = 1;
+const IDB_STORE_COVERS = 'covers';
+
+const openIdb = () => {
+  return new Promise((resolve, reject) => {
+    if (typeof indexedDB === 'undefined') {
+      return reject(new Error('IndexedDB not available'));
+    }
+    const request = indexedDB.open(IDB_NAME, IDB_VERSION);
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(IDB_STORE_COVERS)) {
+        db.createObjectStore(IDB_STORE_COVERS, { keyPath: 'id' });
+      }
+    };
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(request.result);
+  });
+};
+
+const idbPutCover = async (record) => {
+  const db = await openIdb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(IDB_STORE_COVERS, 'readwrite');
+    const store = tx.objectStore(IDB_STORE_COVERS);
+    const req = store.put(record);
+    req.onerror = () => reject(req.error);
+    req.onsuccess = () => resolve(true);
+  });
+};
+
+const idbGetCover = async (id) => {
+  const db = await openIdb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(IDB_STORE_COVERS, 'readonly');
+    const store = tx.objectStore(IDB_STORE_COVERS);
+    const req = store.get(id);
+    req.onerror = () => reject(req.error);
+    req.onsuccess = () => resolve(req.result || null);
+  });
+};
+
+const idbDeleteCover = async (id) => {
+  const db = await openIdb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(IDB_STORE_COVERS, 'readwrite');
+    const store = tx.objectStore(IDB_STORE_COVERS);
+    const req = store.delete(id);
+    req.onerror = () => reject(req.error);
+    req.onsuccess = () => resolve(true);
+  });
+};
+
 /**
  * Ensure data directories exist
  */
@@ -43,26 +98,52 @@ export const generateFileId = () => {
  * Save uploaded file (placeholder - will be replaced with actual file system)
  */
 export const saveUploadedFile = async (file, fileId) => {
+  // Compress large images to reduce storage size
+  const dataUrl = await readFileAsCompressedDataUrl(file);
+  const record = {
+    id: fileId,
+    data: dataUrl,
+    name: file.name,
+    size: file.size,
+    type: file.type,
+    uploadedAt: new Date().toISOString()
+  };
+  await idbPutCover(record);
+  return fileId;
+};
+
+const readFileAsCompressedDataUrl = (file) => {
   return new Promise((resolve, reject) => {
+    const img = new Image();
     const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        // Store file data in localStorage (temporary)
-        const covers = JSON.parse(localStorage.getItem('bookCoverPreviewer_covers') || '{}');
-        covers[fileId] = {
-          data: event.target.result,
-          name: file.name,
-          size: file.size,
-          type: file.type,
-          uploadedAt: new Date().toISOString()
-        };
-        localStorage.setItem('bookCoverPreviewer_covers', JSON.stringify(covers));
-        resolve(fileId);
-      } catch (error) {
-        reject(error);
-      }
-    };
     reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.onload = () => {
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          const maxDim = 3000; // cap large images to reduce storage usage
+          let { width, height } = img;
+          if (width > maxDim || height > maxDim) {
+            const scale = Math.min(maxDim / width, maxDim / height);
+            width = Math.round(width * scale);
+            height = Math.round(height * scale);
+          }
+          canvas.width = width;
+          canvas.height = height;
+          ctx.drawImage(img, 0, 0, width, height);
+          // Prefer WebP for better compression when supported, else JPEG
+          const mime = 'image/webp';
+          const quality = 0.9;
+          const out = canvas.toDataURL(mime, quality);
+          resolve(out);
+        } catch (e) {
+          reject(e);
+        }
+      };
+      img.onerror = () => reject(new Error('Failed to decode image'));
+      img.src = reader.result;
+    };
     reader.readAsDataURL(file);
   });
 };
@@ -70,10 +151,10 @@ export const saveUploadedFile = async (file, fileId) => {
 /**
  * Get file data URL by ID
  */
-export const getFileDataUrl = (fileId) => {
+export const getFileDataUrl = async (fileId) => {
   try {
-    const covers = JSON.parse(localStorage.getItem('bookCoverPreviewer_covers') || '{}');
-    return covers[fileId]?.data || null;
+    const record = await idbGetCover(fileId);
+    return record?.data || null;
   } catch (error) {
     console.error('Failed to get file data:', error);
     return null;
@@ -85,9 +166,7 @@ export const getFileDataUrl = (fileId) => {
  */
 export const deleteFile = async (fileId) => {
   try {
-    const covers = JSON.parse(localStorage.getItem('bookCoverPreviewer_covers') || '{}');
-    delete covers[fileId];
-    localStorage.setItem('bookCoverPreviewer_covers', JSON.stringify(covers));
+    await idbDeleteCover(fileId);
     return true;
   } catch (error) {
     console.error('Failed to delete file:', error);
@@ -100,8 +179,14 @@ export const deleteFile = async (fileId) => {
  */
 export const clearAllFiles = async () => {
   try {
-    localStorage.setItem('bookCoverPreviewer_covers', JSON.stringify({}));
-    return true;
+    const db = await openIdb();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(IDB_STORE_COVERS, 'readwrite');
+      const store = tx.objectStore(IDB_STORE_COVERS);
+      const req = store.clear();
+      req.onerror = () => reject(req.error);
+      req.onsuccess = () => resolve(true);
+    });
   } catch (error) {
     console.error('Failed to clear all files:', error);
     return false;
@@ -111,13 +196,16 @@ export const clearAllFiles = async () => {
 /**
  * Get all stored files info
  */
-export const getAllFiles = () => {
+export const getAllFiles = async () => {
   try {
-    const covers = JSON.parse(localStorage.getItem('bookCoverPreviewer_covers') || '{}');
-    return Object.keys(covers).map(id => ({
-      id,
-      ...covers[id]
-    }));
+    const db = await openIdb();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(IDB_STORE_COVERS, 'readonly');
+      const store = tx.objectStore(IDB_STORE_COVERS);
+      const req = store.getAll();
+      req.onerror = () => reject(req.error);
+      req.onsuccess = () => resolve(req.result || []);
+    });
   } catch (error) {
     console.error('Failed to get all files:', error);
     return [];

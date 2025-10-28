@@ -9,7 +9,8 @@ import {
 } from "three";
 import { degToRad } from "three/src/math/MathUtils.js";
 import { coverAtom, bookOpenAtom } from "./UI";
-import { getCoverById, getCoverImageUrlById } from "../utils/coverData";
+import { getCoverById } from "../utils/coverData";
+import { useCoverImageUrl } from "../utils/useCoverImageUrl";
 import { inchesToUnits } from "../utils/trimSizes";
 
 // Default fallback dimensions (5" × 8" book)
@@ -59,12 +60,11 @@ export const Book = ({ ...props }) => {
   const backCoverRef = useRef();
   const spineRef = useRef();
 
-  // Resolve image URL (uploaded data URL or bundled asset)
-  const imageUrl = useMemo(() => {
-    return selectedCover ? getCoverImageUrlById(selectedCover) : null;
-  }, [selectedCover]);
+  // Resolve image URL (uploaded data URL via IndexedDB or bundled asset)
+  const imageUrl = useCoverImageUrl(selectedCover);
 
   // Load the selected cover texture
+  const TRANSPARENT_PX = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=';
   const coverTexture = useTexture(imageUrl || '/images/wawasensei-white.png');
   coverTexture.colorSpace = SRGBColorSpace;
 
