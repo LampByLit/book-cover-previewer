@@ -1,0 +1,309 @@
+# BOOK COVER PREVIEWER - Comprehensive Roadmap & Strategy
+
+## Executive Summary
+Transform the existing MIXTAPE HYPERBOREA 3D book previewer into a BOOK COVER PREVIEWER that allows users to upload custom cover art with dynamic trim sizes. The application will maintain the professional 3D visualization while enabling user-generated content with persistent storage and automated cleanup.
+
+## Project Objectives
+- **Core Functionality**: Enable users to upload cover images with custom trim sizes and preview them in 3D
+- **User Experience**: Maintain professional UI/UX while adding intuitive upload and management features
+- **Technical Excellence**: Ensure robust 3D rendering with dynamic book generation
+- **Data Management**: Implement reliable storage with automated cleanup
+- **Scalability**: Design for future enhancements and user growth
+
+## Detailed Implementation Strategy
+
+### Phase 1: Foundation & Infrastructure (Week 1-2)
+
+#### 1.1 Project Setup & Configuration
+- [ ] Update all project metadata (HTML, manifest, UI titles)
+- [ ] Configure Railway volume mount (`/data`) integration
+- [ ] Set up directory structure: `/data/covers/`, `/data/metadata.json`
+- [ ] Update package.json with new project name and dependencies
+
+#### 1.2 Data Storage Architecture
+- [ ] Implement file system abstraction layer
+- [ ] Create metadata management system
+- [ ] Set up unique ID generation for uploaded files
+- [ ] Implement basic CRUD operations for cover data
+
+#### 1.3 Trim Size Management System
+- [ ] Define 15 preset trim sizes with categories
+- [ ] Implement custom trim size input validation
+- [ ] Create trim size selection UI components
+- [ ] Add dimension calculation utilities
+
+**Success Criteria:**
+- Clean project metadata updates
+- Functional file storage system
+- Validated trim size calculations
+- Basic data persistence working
+
+### Phase 2: Upload System & UI Enhancement (Week 2-3)
+
+#### 2.1 File Upload Component
+- [ ] Implement HTML5 drag-and-drop upload interface
+- [ ] Add file type validation (PNG, JPG, JPEG, WebP)
+- [ ] Implement file size limits and progress indicators
+- [ ] Create upload queue management
+
+#### 2.2 Sidebar UI Redesign
+- [ ] Add upload section at top of sidebar
+- [ ] Integrate trim size selector with presets and custom inputs
+- [ ] Update thumbnail display with trim size information
+- [ ] Implement loading states and error feedback
+
+#### 2.3 Cover Management Features
+- [ ] Add individual cover deletion with confirmation
+- [ ] Implement "clear all" functionality
+- [ ] Update cover selection state management
+- [ ] Add cover metadata display (upload date, file size)
+
+**Success Criteria:**
+- Seamless file upload experience
+- Intuitive trim size selection
+- Functional cover management
+- Responsive UI across devices
+
+### Phase 3: Dynamic 3D Book Generation (Week 3-4)
+
+#### 3.1 Book.jsx Refactoring
+- [ ] Replace hardcoded dimensions with dynamic calculations
+- [ ] Implement trim size-based scaling (0.2 units per inch)
+- [ ] Update geometry generation for variable dimensions
+- [ ] Maintain book proportions and materials
+
+#### 3.2 Advanced UV Mapping System
+- [ ] Refactor texture mapping for dynamic spine widths
+- [ ] Implement UV coordinate calculations based on trim size
+- [ ] Update texture cloning and offset logic
+- [ ] Test texture wrapping across different trim sizes
+
+#### 3.3 Spine Width Calculation Algorithm
+- [ ] Analyze uploaded image dimensions
+- [ ] Calculate spine width: `total_width - (2 × trim_width)`
+- [ ] Convert image measurements to 3D units
+- [ ] Handle edge cases (invalid dimensions, corrupted images)
+
+**Success Criteria:**
+- Accurate 3D book generation for all trim sizes
+- Proper texture mapping and UV coordinates
+- Smooth animations with dynamic dimensions
+- Visual accuracy across preset and custom sizes
+
+### Phase 4: Data Persistence & Reliability (Week 4-5)
+
+#### 4.1 Metadata Storage System
+- [ ] Implement JSON-based metadata storage
+- [ ] Create cover data structure with all required fields
+- [ ] Add data migration and versioning
+- [ ] Implement metadata validation and error handling
+
+#### 4.2 File Management & Cleanup
+- [ ] Set up Railway cron job for daily cleanup
+- [ ] Implement graceful file deletion with error recovery
+- [ ] Add file locking during operations
+- [ ] Create cleanup logging and monitoring
+
+#### 4.3 Error Handling & Recovery
+- [ ] Implement comprehensive error boundaries
+- [ ] Add retry logic for failed operations
+- [ ] Create user-friendly error messages
+- [ ] Implement data backup and recovery
+
+**Success Criteria:**
+- Reliable data persistence across sessions
+- Automated cleanup working correctly
+- Graceful error handling and recovery
+- Data integrity maintained
+
+### Phase 5: Polish, Testing & Optimization (Week 5-6)
+
+#### 5.1 Performance Optimization
+- [ ] Implement texture preloading and caching
+- [ ] Optimize 3D rendering for large cover collections
+- [ ] Add memory management for unused resources
+- [ ] Implement progressive loading
+
+#### 5.2 Cross-Platform Testing
+- [ ] Test across major browsers (Chrome, Firefox, Safari, Edge)
+- [ ] Validate mobile responsiveness and touch interactions
+- [ ] Test with various image formats and sizes
+- [ ] Verify Railway deployment functionality
+
+#### 5.3 User Experience Refinement
+- [ ] Conduct usability testing and gather feedback
+- [ ] Implement accessibility improvements
+- [ ] Add keyboard navigation support
+- [ ] Polish animations and transitions
+
+**Success Criteria:**
+- Smooth performance across all devices
+- Comprehensive browser compatibility
+- Professional user experience
+- Zero critical bugs or errors
+
+## Technical Architecture
+
+### Frontend Architecture
+```
+src/
+├── components/
+│   ├── UI.jsx (enhanced with upload/management)
+│   ├── Book.jsx (refactored for dynamic dimensions)
+│   ├── Experience.jsx (camera/camera adjustments)
+│   └── UploadComponent.jsx (new)
+├── utils/
+│   ├── trimSizes.js (preset definitions)
+│   ├── fileUtils.js (upload/validation)
+│   ├── dimensionUtils.js (calculations)
+│   └── metadataUtils.js (data management)
+├── hooks/
+│   ├── useUpload.js (upload logic)
+│   ├── useTrimSize.js (trim size management)
+│   └── useMetadata.js (data persistence)
+└── stores/
+    └── atoms.js (extended Jotai state)
+```
+
+### Backend/Data Architecture
+```
+/data/
+├── covers/ (uploaded images)
+├── metadata.json (cover information)
+└── temp/ (processing directory)
+```
+
+### Key Technical Challenges
+
+#### Dynamic UV Mapping
+**Challenge:** Current system uses fixed UV coordinates for 5"×8" books with 0.842" spine
+**Solution:**
+1. Calculate UV offsets based on trim size proportions
+2. Update texture repeat/offset values dynamically
+3. Maintain bleed handling for different spine widths
+4. Test edge cases with extreme trim size ratios
+
+#### Railway Volume Integration
+**Challenge:** Serverless environment with persistent storage requirements
+**Solution:**
+1. Use Railway volume mounts for file storage
+2. Implement atomic file operations
+3. Add cleanup scheduling via Railway cron
+4. Handle storage quota and error conditions
+
+#### Cross-Browser File Upload
+**Challenge:** Drag-and-drop and File API inconsistencies
+**Solution:**
+1. Implement progressive enhancement
+2. Add fallback for browsers without drag-and-drop
+3. Use modern File API with feature detection
+4. Test thoroughly across target browsers
+
+## Risk Assessment & Mitigation
+
+### High Risk
+1. **UV Mapping Complexity** (Impact: High, Probability: Medium)
+   - *Mitigation:* Start with one preset size, validate thoroughly before expanding
+
+2. **Railway Volume Reliability** (Impact: High, Probability: Low)
+   - *Mitigation:* Implement local storage fallback, extensive error handling
+
+3. **3D Performance with Dynamic Sizes** (Impact: Medium, Probability: Medium)
+   - *Mitigation:* Performance testing early, implement LOD system if needed
+
+### Medium Risk
+4. **File Upload Edge Cases** (Impact: Medium, Probability: High)
+   - *Mitigation:* Comprehensive validation, user-friendly error messages
+
+5. **Mobile Responsiveness** (Impact: Low, Probability: Medium)
+   - *Mitigation:* Mobile-first design approach, extensive testing
+
+## Success Metrics
+
+### Functional Metrics
+- [ ] All 15 preset trim sizes render correctly
+- [ ] Custom trim sizes work within specified ranges
+- [ ] File upload success rate > 95%
+- [ ] 3D preview loads within 3 seconds
+- [ ] Data persists across browser sessions
+
+### Quality Metrics
+- [ ] Zero critical bugs in production
+- [ ] Cross-browser compatibility (Chrome, Firefox, Safari, Edge)
+- [ ] Mobile usability score > 90/100
+- [ ] Performance: 60 FPS sustained during 3D interactions
+
+### User Experience Metrics
+- [ ] Intuitive upload workflow (< 30 seconds to first preview)
+- [ ] Clear error messages and recovery paths
+- [ ] Responsive design across all screen sizes
+- [ ] Accessibility compliance (WCAG 2.1 AA)
+
+## Timeline & Milestones
+
+### Week 1: Foundation
+- [ ] Project setup and metadata updates
+- [ ] Basic data storage system
+- [ ] Trim size management foundation
+
+### Week 2: Upload System
+- [ ] File upload component implementation
+- [ ] UI enhancements and trim size selection
+- [ ] Basic cover management features
+
+### Week 3: 3D Engine
+- [ ] Dynamic book generation
+- [ ] UV mapping system overhaul
+- [ ] Testing across trim sizes
+
+### Week 4: Data & Reliability
+- [ ] Metadata storage implementation
+- [ ] Cleanup system deployment
+- [ ] Error handling and recovery
+
+### Week 5: Polish & Testing
+- [ ] Performance optimization
+- [ ] Cross-browser testing
+- [ ] UX refinements
+
+### Week 6: Launch Preparation
+- [ ] Final testing and bug fixes
+- [ ] Performance monitoring setup
+- [ ] Documentation and deployment
+
+## Resource Requirements
+
+### Development Team
+- **Lead Developer**: Full-stack React/Three.js experience
+- **UI/UX Designer**: For upload interface and mobile optimization
+- **DevOps Engineer**: Railway deployment and monitoring
+
+### Technology Stack
+- **Frontend**: React 18, React Three Fiber, Jotai, Tailwind CSS
+- **3D Engine**: Three.js with custom UV mapping
+- **Storage**: Railway volume mounts, JSON metadata
+- **Build Tools**: Vite, Railway CLI
+
+### Testing Resources
+- **Browser Testing**: BrowserStack or similar service
+- **Device Testing**: Real device farm for mobile
+- **Performance Testing**: Lighthouse, Web Vitals monitoring
+
+## Contingency Plans
+
+### Timeline Slippage
+- **Phase 1-2**: Can be compressed to 2 weeks with focused effort
+- **Phase 3**: Most complex; allocate extra time if UV mapping issues arise
+- **Phase 4-5**: Can overlap with Phase 3 completion
+
+### Technical Blockers
+- **Railway Volume Issues**: Implement localStorage fallback system
+- **UV Mapping Failures**: Revert to fixed-size books for complex cases
+- **Performance Issues**: Implement simplified 3D mode for low-end devices
+
+### Scope Adjustments
+- **Minimum Viable Product**: Basic upload with 5"×8" trim size
+- **Progressive Enhancement**: Add custom trim sizes after MVP validation
+- **Feature Prioritization**: Upload > 3D preview > management features
+
+This roadmap provides a comprehensive strategy for transforming the codebase while maintaining code quality and user experience standards.
