@@ -1,7 +1,7 @@
 {
-  "name": "MIXTAPE HYPERBOREA",
-  "short_name": "MixtapeHyperborea",
-  "description": "Interactive 3D animated book slider showcasing MIXTAPE HYPERBOREA collection",
+  "name": "BOOK COVER PREVIEWER",
+  "short_name": "BookCoverPreviewer",
+  "description": "Interactive 3D book previewer for custom trim sizes. Upload your cover art and preview books in immersive 3D with dynamic dimensions.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1f2937",
@@ -9,15 +9,15 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "https://lampbylit.com/magazine/wp-content/uploads/2020/12/favicon.png",
+      "src": "/favicon.ico",
       "sizes": "192x192",
-      "type": "image/png",
+      "type": "image/x-icon",
       "purpose": "any maskable"
     },
     {
-      "src": "https://lampbylit.com/magazine/wp-content/uploads/2020/12/favicon.png",
+      "src": "/favicon.ico",
       "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/x-icon",
       "purpose": "any maskable"
     }
   ]
