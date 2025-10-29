@@ -17,8 +17,6 @@ export const UploadComponent = ({ onUploadSuccess, onUploadError }) => {
   const [useCustomSize, setUseCustomSize] = useState(false);
   const [spineWidthInches, setSpineWidthInches] = useState('');
   const [dpi, setDpi] = useState('300');
-  const [hasBleed, setHasBleed] = useState(false);
-  const [bleedInches, setBleedInches] = useState('0.125');
   const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
 
@@ -97,10 +95,6 @@ export const UploadComponent = ({ onUploadSuccess, onUploadError }) => {
       const options = {};
       if (spineWidthInches !== '') options.spineWidthInches = parseFloat(spineWidthInches);
       if (dpi !== '') options.dpi = parseFloat(dpi);
-      if (hasBleed) {
-        options.hasBleed = true;
-        if (bleedInches !== '') options.bleedInches = parseFloat(bleedInches);
-      }
       const newCover = await addCover(file, finalTrimSize, options);
 
       setUploadProgress(100);
@@ -132,8 +126,6 @@ export const UploadComponent = ({ onUploadSuccess, onUploadError }) => {
     setIsUploading(false);
     setSpineWidthInches('');
     setDpi('300');
-    setHasBleed(false);
-    setBleedInches('0.125');
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -293,41 +285,6 @@ export const UploadComponent = ({ onUploadSuccess, onUploadError }) => {
             disabled={isUploading}
           />
         </div>
-      </div>
-
-      {/* Bleed settings (optional) */}
-      <div className="mb-4">
-        <div className="flex items-center mb-2">
-          <input
-            type="checkbox"
-            id="has-bleed"
-            checked={hasBleed}
-            onChange={(e) => setHasBleed(e.target.checked)}
-            className="mr-2"
-            disabled={isUploading}
-          />
-          <label htmlFor="has-bleed" className="text-sm text-gray-700">
-            Image includes bleed
-          </label>
-        </div>
-        {hasBleed && (
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="block text-xs text-gray-600 mb-1">Bleed (inches)</label>
-              <input
-                type="number"
-                step="0.001"
-                min="0"
-                max="1"
-                value={bleedInches}
-                onChange={(e) => setBleedInches(e.target.value)}
-                className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md"
-                placeholder="0.125"
-                disabled={isUploading}
-              />
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Upload Area */}
