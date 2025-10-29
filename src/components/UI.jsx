@@ -21,6 +21,8 @@ export const UI = ({ experienceRef }) => {
   const [loading, setLoading] = useState(false);
   const [uploadedCovers, setUploadedCovers] = useState([]);
   const [loadingImageId, setLoadingImageId] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalImageUrl, setModalImageUrl] = useState(null);
 
   // Load covers on component mount
   useEffect(() => {
@@ -213,53 +215,13 @@ export const UI = ({ experienceRef }) => {
                         try {
                           // Use async URL resolution directly
                           const url = await getCoverImageUrlByIdAsync(cover.id) || `/images/white.png`;
-                          
-                          // Create a proper HTML page with the image instead of just opening the data URL
-                          const htmlContent = `
-                            <!DOCTYPE html>
-                            <html>
-                            <head>
-                              <title>Full Image View</title>
-                              <style>
-                                body { 
-                                  margin: 0; 
-                                  padding: 20px; 
-                                  background: #f5f5f5; 
-                                  display: flex; 
-                                  justify-content: center; 
-                                  align-items: center; 
-                                  min-height: 100vh;
-                                }
-                                img { 
-                                  max-width: 100%; 
-                                  max-height: 100vh; 
-                                  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-                                  border-radius: 8px;
-                                }
-                                .loading {
-                                  font-family: Arial, sans-serif;
-                                  color: #666;
-                                  text-align: center;
-                                }
-                              </style>
-                            </head>
-                            <body>
-                              <div class="loading">Loading image...</div>
-                              <img src="${url}" alt="Full size cover image" onload="this.style.display='block'; this.previousElementSibling.style.display='none';" style="display:none;" />
-                            </body>
-                            </html>
-                          `;
-                          
-                          // Open the HTML content in a new window
-                          const newWindow = window.open('', '_blank', 'noopener,noreferrer');
-                          if (newWindow) {
-                            newWindow.document.write(htmlContent);
-                            newWindow.document.close();
-                          }
+                          setModalImageUrl(url);
+                          setModalVisible(true);
                         } catch (error) {
                           console.error('Failed to load image URL:', error);
                           // Fallback to white image on error
-                          window.open('/images/white.png', '_blank', 'noopener,noreferrer');
+                          setModalImageUrl('/images/white.png');
+                          setModalVisible(true);
                         } finally {
                           setLoadingImageId(null);
                         }
@@ -404,6 +366,32 @@ export const UI = ({ experienceRef }) => {
       {loading && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 pointer-events-none">
           <div className="w-16 h-16 border-4 border-gray-300 border-t-white rounded-full animate-spin" />
+        </div>
+      )}
+
+      {/* Image Modal */}
+      {modalVisible && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 pointer-events-auto"
+          onClick={() => setModalVisible(false)}
+        >
+          <div className="relative max-w-[90vw] max-h-[90vh] p-4">
+            <img 
+              src={modalImageUrl} 
+              alt="Full size cover image"
+              className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+            />
+            <button
+              onClick={() => setModalVisible(false)}
+              className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full transition-colors"
+              title="Close"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
         </div>
       )}
     </>
