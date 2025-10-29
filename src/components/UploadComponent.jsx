@@ -283,7 +283,7 @@ export const UploadComponent = ({ onUploadSuccess, onUploadError }) => {
               setPageCount(val);
               const pages = parseInt(val, 10);
               if (Number.isFinite(pages) && pages > 0) {
-                const computed = (pages * 0.0025).toFixed(3);
+                const computed = (pages * 0.003).toFixed(3);
                 setSpineWidthInches(computed);
               }
             }}
