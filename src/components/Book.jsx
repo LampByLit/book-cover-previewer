@@ -40,22 +40,15 @@ export const Book = ({ ...props }) => {
     // In a real implementation, we'd analyze the uploaded image dimensions
     const spineDepth = inchesToUnits(0.842); // Default spine depth
 
-    // Image dimensions (these would be calculated from the actual uploaded image)
-    // For now, assume a standard layout: front + spine + back
-    const imageWidth = trimSize.width * 3; // Rough estimate: front + spine + back
-    const imageHeight = trimSize.height * 1.03; // Slight bleed
-
     return {
       bookWidth,
       bookHeight,
       spineDepth,
-      imageWidth,
-      imageHeight,
       trimSize
     };
   }, [coverData]);
 
-  const { bookWidth, bookHeight, spineDepth, imageWidth, imageHeight } = dimensions;
+  const { bookWidth, bookHeight, spineDepth } = dimensions;
   
   const frontCoverRef = useRef();
   const backCoverRef = useRef();
@@ -65,7 +58,6 @@ export const Book = ({ ...props }) => {
   const imageUrl = useCoverImageUrl(selectedCover);
 
   // Load the selected cover texture
-  const TRANSPARENT_PX = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=';
   const coverTexture = useTexture(imageUrl || '/images/white.png');
   coverTexture.colorSpace = SRGBColorSpace;
 

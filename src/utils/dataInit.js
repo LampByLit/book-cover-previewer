@@ -5,7 +5,6 @@
  */
 
 import { ensureDataDirectories } from './fileSystem.js';
-import { loadMetadata, saveMetadata } from './fileSystem.js';
 
 /**
  * Initialize the data storage system
@@ -31,45 +30,3 @@ export const initializeDataSystem = async () => {
   }
 };
 
-/**
- * Check if data system is ready
- */
-export const isDataSystemReady = () => {
-  try {
-    // Check if localStorage is available (our current storage method)
-    if (typeof window === 'undefined') return false;
-
-    // Check if our storage keys exist
-    const metadata = localStorage.getItem('bookCoverPreviewer_metadata');
-    return metadata !== null;
-  } catch (error) {
-    return false;
-  }
-};
-
-/**
- * Reset data system (for testing or cleanup)
- */
-export const resetDataSystem = async () => {
-  try {
-    localStorage.removeItem('bookCoverPreviewer_metadata');
-    localStorage.removeItem('bookCoverPreviewer_covers');
-
-    const initialized = await initializeDataSystem();
-    return initialized;
-  } catch (error) {
-    console.error('Failed to reset data system:', error);
-    return false;
-  }
-};
-
-/**
- * Get data system status
- */
-export const getDataSystemStatus = () => {
-  return {
-    ready: isDataSystemReady(),
-    storageType: 'localStorage',
-    version: '1.0.0'
-  };
-};
