@@ -213,7 +213,19 @@ export const UI = ({ experienceRef }) => {
                         try {
                           // Use async URL resolution directly
                           const url = await getCoverImageUrlByIdAsync(cover.id) || `/images/white.png`;
-                          window.open(url, '_blank', 'noopener,noreferrer');
+                          const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
+                          
+                          // Auto-refresh the new window after 1 second to ensure image loads
+                          if (newWindow) {
+                            setTimeout(() => {
+                              try {
+                                newWindow.location.reload();
+                              } catch (error) {
+                                // Ignore cross-origin errors if the window is from a different domain
+                                console.log('Could not refresh window (likely cross-origin):', error.message);
+                              }
+                            }, 1000);
+                          }
                         } catch (error) {
                           console.error('Failed to load image URL:', error);
                           // Fallback to white image on error
