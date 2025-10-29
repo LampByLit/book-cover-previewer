@@ -1,7 +1,7 @@
 import { atom, useAtom } from "jotai";
 import { useEffect, useState } from "react";
 import { UploadComponent } from "./UploadComponent";
-import { getAllCovers, getCoverDisplayInfo, getCoverImageUrl, getCoverImageUrlByIdAsync, clearAllCovers } from "../utils/coverData";
+import { getAllCovers, getCoverDisplayInfo, getCoverImageUrl, clearAllCovers } from "../utils/coverData";
 import { clearAllFiles } from "../utils/fileSystem";
 import { useCoverImageUrl } from "../utils/useCoverImageUrl";
 
@@ -226,40 +226,12 @@ export const UI = ({ experienceRef }) => {
 
                     {/* Full Image View Button */}
                     <button
-                      onClick={async (e) => {
+                      onClick={(e) => {
                         e.stopPropagation(); // Prevent triggering cover change
-                        try {
-                          console.log('View full image clicked for cover:', cover);
-                          
-                          // First try synchronous URL (for external URLs)
-                          const syncUrl = getCoverImageUrl(cover);
-                          console.log('Sync URL:', syncUrl);
-                          if (syncUrl) {
-                            console.log('Opening sync URL:', syncUrl);
-                            window.open(syncUrl, '_blank', 'noopener,noreferrer');
-                            return;
-                          }
-                          
-                          // For uploaded covers, fetch the async URL
-                          if (cover?.id) {
-                            console.log('Fetching async URL for ID:', cover.id);
-                            const asyncUrl = await getCoverImageUrlByIdAsync(cover.id);
-                            console.log('Async URL:', asyncUrl);
-                            if (asyncUrl) {
-                              console.log('Opening async URL:', asyncUrl);
-                              window.open(asyncUrl, '_blank', 'noopener,noreferrer');
-                              return;
-                            }
-                          }
-                          
-                          console.log('No URL found, using fallback');
-                          // Fallback to default image
-                          window.open('/images/wawasensei-white.png', '_blank', 'noopener,noreferrer');
-                        } catch (error) {
-                          console.error('Error opening full image:', error);
-                          // Fallback to default image on error
-                          window.open('/images/wawasensei-white.png', '_blank', 'noopener,noreferrer');
-                        }
+                        const syncUrl = getCoverImageUrl(cover);
+                        const asyncUrl = syncUrl || (cover?.id ? window.__lastCoverUrlCache?.[cover.id] : null);
+                        const url = asyncUrl || `/images/wawasensei-white.png`;
+                        window.open(url, '_blank', 'noopener,noreferrer');
                       }}
                       className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-auto bg-black/60 hover:bg-black/80 text-white p-1.5 rounded-full text-xs"
                       title="View full image in new tab"

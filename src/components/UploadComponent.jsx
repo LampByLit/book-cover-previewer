@@ -18,8 +18,6 @@ export const UploadComponent = ({ onUploadSuccess, onUploadError }) => {
   const [spineWidthInches, setSpineWidthInches] = useState('');
   const [pageCount, setPageCount] = useState('');
   const [error, setError] = useState(null);
-  const [uploadMode, setUploadMode] = useState('file'); // 'file' or 'url'
-  const [externalUrl, setExternalUrl] = useState('');
   const fileInputRef = useRef(null);
 
   // Handle drag events
