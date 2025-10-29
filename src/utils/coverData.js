@@ -54,8 +54,7 @@ export const addCover = async (file, trimSize, options = {}) => {
     fileSize: file.size,
     source: 'uploaded',
     // Optional rendering hints
-    spineWidthInches: typeof options.spineWidthInches === 'number' ? options.spineWidthInches : undefined,
-    dpi: typeof options.dpi === 'number' ? options.dpi : undefined
+    spineWidthInches: typeof options.spineWidthInches === 'number' ? options.spineWidthInches : undefined
   };
 
   // Persist file data as Data URL in localStorage for local dev
