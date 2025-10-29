@@ -17,7 +17,7 @@ export const UploadComponent = ({ onUploadSuccess, onUploadError }) => {
   const [selectedTrimSize, setSelectedTrimSize] = useState({ width: 5.0, height: 8.0 });
   const [customTrimSize, setCustomTrimSize] = useState({ width: '', height: '' });
   const [useCustomSize, setUseCustomSize] = useState(false);
-  const [spineWidthInches, setSpineWidthInches] = useState('');
+  const [spineWidthInches, setSpineWidthInches] = useState('0.543');
   const [pageCount, setPageCount] = useState('');
   const [error, setError] = useState(null);
   const [bleedEnabled, setBleedEnabled] = useAtom(bleedEnabledAtom);
@@ -191,7 +191,7 @@ export const UploadComponent = ({ onUploadSuccess, onUploadError }) => {
       {/* Trim Size Selection */}
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Trim Size (Width × Height in inches)
+          Trim Size
         </label>
 
         {/* Preset Sizes */}
@@ -289,7 +289,7 @@ export const UploadComponent = ({ onUploadSuccess, onUploadError }) => {
           />
         </div>
         <div>
-          <label className="block text-xs text-gray-600 mb-1">Spine width (inches, required)</label>
+          <label className="block text-xs text-red-600 mb-1">Spine width (inches, required)</label>
           <input
             type="number"
             step="0.001"
