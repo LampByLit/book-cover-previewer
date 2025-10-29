@@ -1,5 +1,5 @@
 /**
- * BOOK COVER PREVIEWER - File Upload Component
+ * Book Cover Previewer - File Upload Component
  *
  * Provides drag-and-drop file upload interface with validation and progress feedback.
  */

@@ -1,5 +1,5 @@
 /**
- * Data Initialization for BOOK COVER PREVIEWER
+ * Data Initialization for Book Cover Previewer
  *
  * Ensures data storage system is properly initialized on app startup.
  */
