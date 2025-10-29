@@ -372,10 +372,10 @@ export const UI = ({ experienceRef }) => {
       {/* Image Modal */}
       {modalVisible && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 pointer-events-auto"
+          className="fixed inset-0 z-50 flex items-start justify-center bg-black/80 pointer-events-auto pt-16"
           onClick={() => setModalVisible(false)}
         >
-          <div className="relative max-w-[50vw] max-h-[50vh] p-4">
+          <div className="relative max-w-[50vw] max-h-[60vh] p-4">
             <img 
               src={modalImageUrl} 
               alt="Full size cover image"
