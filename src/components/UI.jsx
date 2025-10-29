@@ -210,7 +210,7 @@ export const UI = ({ experienceRef }) => {
                         e.stopPropagation(); // Prevent triggering cover change
                         const syncUrl = getCoverImageUrl(cover);
                         const asyncUrl = syncUrl || (cover?.id ? window.__lastCoverUrlCache?.[cover.id] : null);
-                        const url = asyncUrl || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+                        const url = asyncUrl || `/images/wawasensei-white.png`;
                         window.open(url, '_blank', 'noopener,noreferrer');
                       }}
                       className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-auto bg-black/60 hover:bg-black/80 text-white p-1.5 rounded-full text-xs"
@@ -348,7 +348,7 @@ const CoverImage = ({ cover, alt }) => {
     if (urlAsync) window.__lastCoverUrlCache[cover.id] = urlAsync;
   }
 
-  const src = urlSync || urlAsync || 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+  const src = urlSync || urlAsync || "/images/wawasensei-white.png";
   return (
     <img
       src={src}

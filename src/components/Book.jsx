@@ -65,8 +65,8 @@ export const Book = ({ ...props }) => {
   const imageUrl = useCoverImageUrl(selectedCover);
 
   // Load the selected cover texture
-  const WHITE_COVER = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
-  const coverTexture = useTexture(imageUrl || WHITE_COVER);
+  const TRANSPARENT_PX = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=';
+  const coverTexture = useTexture(imageUrl || '/images/wawasensei-white.png');
   coverTexture.colorSpace = SRGBColorSpace;
 
   // Calculate spine width in inches (metadata or default), and convert to scene units for geometry depth
