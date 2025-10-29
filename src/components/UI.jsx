@@ -1,7 +1,7 @@
 import { atom, useAtom } from "jotai";
 import { useEffect, useState } from "react";
 import { UploadComponent } from "./UploadComponent";
-import { getAllCovers, getCoverDisplayInfo, getCoverImageUrl, clearAllCovers } from "../utils/coverData";
+import { getAllCovers, getCoverDisplayInfo, getCoverImageUrl, getCoverImageUrlByIdAsync, clearAllCovers } from "../utils/coverData";
 import { clearAllFiles } from "../utils/fileSystem";
 import { useCoverImageUrl } from "../utils/useCoverImageUrl";
 
@@ -20,6 +20,7 @@ export const UI = ({ experienceRef }) => {
   const [bleedEnabled, setBleedEnabled] = useAtom(bleedEnabledAtom);
   const [loading, setLoading] = useState(false);
   const [uploadedCovers, setUploadedCovers] = useState([]);
+  const [loadingImageId, setLoadingImageId] = useState(null);
 
   // Load covers on component mount
   useEffect(() => {
@@ -206,31 +207,60 @@ export const UI = ({ experienceRef }) => {
 
                     {/* Full Image View Button */}
                     <button
-                      onClick={(e) => {
+                      onClick={async (e) => {
                         e.stopPropagation(); // Prevent triggering cover change
-                        const syncUrl = getCoverImageUrl(cover);
-                        const asyncUrl = syncUrl || (cover?.id ? window.__lastCoverUrlCache?.[cover.id] : null);
-                        const url = asyncUrl || `/images/white.png`;
-                        window.open(url, '_blank', 'noopener,noreferrer');
+                        setLoadingImageId(cover.id);
+                        try {
+                          // Use async URL resolution directly
+                          const url = await getCoverImageUrlByIdAsync(cover.id) || `/images/white.png`;
+                          window.open(url, '_blank', 'noopener,noreferrer');
+                        } catch (error) {
+                          console.error('Failed to load image URL:', error);
+                          // Fallback to white image on error
+                          window.open('/images/white.png', '_blank', 'noopener,noreferrer');
+                        } finally {
+                          setLoadingImageId(null);
+                        }
                       }}
-                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-auto bg-black/60 hover:bg-black/80 text-white p-1.5 rounded-full text-xs"
-                      title="View full image in new tab"
+                      disabled={loadingImageId === cover.id}
+                      className={`absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-auto text-white p-1.5 rounded-full text-xs ${
+                        loadingImageId === cover.id 
+                          ? 'bg-blue-600 cursor-wait' 
+                          : 'bg-black/60 hover:bg-black/80'
+                      }`}
+                      title={loadingImageId === cover.id ? "Loading image..." : "View full image in new tab"}
                       aria-label={`View full size of ${displayInfo.displayName} in new tab`}
                     >
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                        <polyline points="15,3 21,3 21,9" />
-                        <line x1="10" y1="14" x2="21" y2="3" />
-                      </svg>
+                      {loadingImageId === cover.id ? (
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="animate-spin"
+                        >
+                          <path d="M21 12a9 9 0 11-6.219-8.56" />
+                        </svg>
+                      ) : (
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                          <polyline points="15,3 21,3 21,9" />
+                          <line x1="10" y1="14" x2="21" y2="3" />
+                        </svg>
+                      )}
                     </button>
                   </div>
                 );
@@ -341,12 +371,6 @@ export const UI = ({ experienceRef }) => {
 const CoverImage = ({ cover, alt }) => {
   const urlSync = getCoverImageUrl(cover);
   const urlAsync = useCoverImageUrl(cover?.id);
-
-  // Cache last known async URL globally for the 'View full image' button
-  if (cover?.id) {
-    window.__lastCoverUrlCache = window.__lastCoverUrlCache || {};
-    if (urlAsync) window.__lastCoverUrlCache[cover.id] = urlAsync;
-  }
 
   const src = urlSync || urlAsync || "/images/white.png";
   return (
