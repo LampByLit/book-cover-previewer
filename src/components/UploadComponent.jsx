@@ -93,7 +93,7 @@ export const UploadComponent = ({ onUploadSuccess, onUploadError }) => {
 
       // Add cover to system (include optional spine width)
       // Ensure spine width is provided (either directly or via page count calculator)
-      const PER_PAGE_THICKNESS = 0.003; // inches per page
+      const PER_PAGE_THICKNESS = 0.0025; // inches per page
       let spineInches = spineWidthInches;
       if ((spineInches === '' || isNaN(parseFloat(spineInches))) && pageCount !== '') {
         const pages = parseInt(pageCount, 10);
@@ -271,7 +271,7 @@ export const UploadComponent = ({ onUploadSuccess, onUploadError }) => {
       {/* Page count calculator and spine width (required) */}
       <div className="mb-4 grid grid-cols-1 gap-2">
         <div>
-          <label className="block text-xs text-gray-600 mb-1">Page count (optional, auto-calculates spine at 0.003"/page)</label>
+          <label className="block text-xs text-gray-600 mb-1">Page count (optional, auto-calculates spine at 0.0025"/page)</label>
           <input
             type="number"
             step="1"
@@ -283,7 +283,7 @@ export const UploadComponent = ({ onUploadSuccess, onUploadError }) => {
               setPageCount(val);
               const pages = parseInt(val, 10);
               if (Number.isFinite(pages) && pages > 0) {
-                const computed = (pages * 0.003).toFixed(3);
+                const computed = (pages * 0.0025).toFixed(3);
                 setSpineWidthInches(computed);
               }
             }}
