@@ -8,7 +8,7 @@ import {
   SRGBColorSpace,
 } from "three";
 import { degToRad } from "three/src/math/MathUtils.js";
-import { coverAtom, bookOpenAtom } from "./UI";
+import { coverAtom, bookOpenAtom, bleedEnabledAtom } from "./UI";
 import { getCoverById } from "../utils/coverData";
 import { useCoverImageUrl } from "../utils/useCoverImageUrl";
 import { inchesToUnits } from "../utils/trimSizes";
@@ -21,6 +21,7 @@ const easingFactor = 0.08;
 export const Book = ({ ...props }) => {
   const [selectedCover] = useAtom(coverAtom);
   const [bookOpen] = useAtom(bookOpenAtom);
+  const [bleedEnabled] = useAtom(bleedEnabledAtom);
 
   // Get current cover data and calculate dynamic dimensions
   const coverData = useMemo(() => {
@@ -77,28 +78,51 @@ export const Book = ({ ...props }) => {
   const spineTexture = coverTexture.clone();
   const backTexture = coverTexture.clone();
 
-  // UV mapping using inches proportions (robust to image pixel dimensions/DPI/resizing)
+  // UV mapping using inches proportions (robust to image pixel dimensions/resizing)
   // Assumes left-to-right layout: [front][spine][back]
   const trimWidthInches = dimensions.trimSize.width;
+  const trimHeightInches = dimensions.trimSize.height;
   const totalWidthInches = Math.max(0.0001, trimWidthInches * 2 + spineWidthInches);
   const frontUVWidth = Math.max(0, Math.min(1, trimWidthInches / totalWidthInches));
   const spineUVWidth = Math.max(0, Math.min(1, spineWidthInches / totalWidthInches));
   const backUVWidth = frontUVWidth;
 
+  // Optional bleed (crop outer edges): 0.125" on specified sides
+  const bleedInches = bleedEnabled ? 0.125 : 0;
+  const safeTrimWidth = Math.max(bleedInches, trimWidthInches);
+  const safeTrimHeight = Math.max(bleedInches * 2, trimHeightInches);
+
+  // Vertical (top/bottom) crop for all sections
+  const vRepeat = Math.max(0, (trimHeightInches - 2 * bleedInches) / trimHeightInches);
+  const vOffset = Math.max(0, bleedInches / trimHeightInches);
+
+  // Horizontal crop per section
+  // - Front: crop right outer edge by bleedInches
+  // - Spine: no horizontal crop
+  // - Back: crop left outer edge by bleedInches
+  const frontURepeat = Math.max(0, (trimWidthInches - bleedInches) / totalWidthInches);
+  const frontUOffset = 0; // keep left edge anchored
+
+  const spineURepeat = spineUVWidth; // unchanged
+  const spineUOffset = frontUVWidth; // unchanged base offset
+
+  const backURepeat = Math.max(0, (trimWidthInches - bleedInches) / totalWidthInches);
+  const backBaseOffset = frontUVWidth + spineUVWidth;
+  const backUOffset = backBaseOffset + Math.max(0, bleedInches / totalWidthInches); // shift right to crop left edge
+
   // Front (left section)
-  frontTexture.repeat.set(frontUVWidth, 1);
-  frontTexture.offset.set(0, 0);
+  frontTexture.repeat.set(frontURepeat, vRepeat);
+  frontTexture.offset.set(frontUOffset, vOffset);
   frontTexture.needsUpdate = true;
 
   // Spine (middle section)
-  spineTexture.repeat.set(spineUVWidth, 1);
-  spineTexture.offset.set(frontUVWidth, 0);
+  spineTexture.repeat.set(spineURepeat, vRepeat);
+  spineTexture.offset.set(spineUOffset, vOffset);
   spineTexture.needsUpdate = true;
 
   // Back (right section)
-  const backStartUV = frontUVWidth + spineUVWidth;
-  backTexture.repeat.set(backUVWidth, 1);
-  backTexture.offset.set(backStartUV, 0);
+  backTexture.repeat.set(backURepeat, vRepeat);
+  backTexture.offset.set(backUOffset, vOffset);
   backTexture.needsUpdate = true;
 
   // Animate book opening/closing

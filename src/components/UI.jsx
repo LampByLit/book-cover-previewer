@@ -15,6 +15,7 @@ const covers = Object.keys(coverModules)
 export const coverAtom = atom(null); // Current selected cover ID
 export const bookOpenAtom = atom(false); // Book open/closed state
 export const sidebarVisibleAtom = atom(true); // Thumbnail sidebar visibility
+export const bleedEnabledAtom = atom(false); // Optional 0.125" bleed crop
 
 export { covers };
 
@@ -22,6 +23,7 @@ export const UI = ({ experienceRef }) => {
   const [selectedCoverId, setSelectedCoverId] = useAtom(coverAtom);
   const [bookOpen, setBookOpen] = useAtom(bookOpenAtom);
   const [sidebarVisible, setSidebarVisible] = useAtom(sidebarVisibleAtom);
+  const [bleedEnabled, setBleedEnabled] = useAtom(bleedEnabledAtom);
   const [loading, setLoading] = useState(false);
   const [uploadedCovers, setUploadedCovers] = useState([]);
 
@@ -165,6 +167,21 @@ export const UI = ({ experienceRef }) => {
             onUploadSuccess={handleUploadSuccess}
             onUploadError={handleUploadError}
           />
+
+          {/* Bleed toggle */}
+          <div className="mt-3 mb-2 flex items-center justify-between">
+            <label className="text-sm text-gray-700 select-none" htmlFor="bleed-toggle">
+              Apply 0.125" bleed
+            </label>
+            <input
+              id="bleed-toggle"
+              type="checkbox"
+              checked={bleedEnabled}
+              onChange={(e) => setBleedEnabled(e.target.checked)}
+              className="h-4 w-4"
+              disabled={loading}
+            />
+          </div>
 
           {/* Manage Covers */}
           <div className="mt-3 mb-5">
