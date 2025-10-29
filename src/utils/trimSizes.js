@@ -4,38 +4,16 @@
  * Defines standard book trim sizes and provides validation utilities.
  */
 
-// Preset trim sizes organized by category
-export const TRIM_SIZE_PRESETS = {
-  fiction: [
-    { width: 4.25, height: 6.87, name: 'Fiction 1', category: 'Fiction' },
-    { width: 5.0, height: 8.0, name: 'Fiction 2', category: 'Fiction' },
-    { width: 5.25, height: 8.0, name: 'Fiction 3', category: 'Fiction' },
-    { width: 5.5, height: 8.5, name: 'Fiction 4', category: 'Fiction' },
-    { width: 6.0, height: 9.0, name: 'Fiction 5', category: 'Fiction' }
-  ],
-  children: [
-    { width: 7.5, height: 7.5, name: 'Children 1', category: 'Children\'s' },
-    { width: 7.0, height: 10.0, name: 'Children 2', category: 'Children\'s' },
-    { width: 10.0, height: 8.0, name: 'Children 3', category: 'Children\'s' }
-  ],
-  textbooks: [
-    { width: 6.0, height: 9.0, name: 'Textbook 1', category: 'Textbooks' },
-    { width: 7.0, height: 10.0, name: 'Textbook 2', category: 'Textbooks' },
-    { width: 8.5, height: 11.0, name: 'Textbook 3', category: 'Textbooks' }
-  ],
-  nonfiction: [
-    { width: 5.5, height: 8.5, name: 'Non-fiction 1', category: 'Non-fiction' },
-    { width: 6.0, height: 9.0, name: 'Non-fiction 2', category: 'Non-fiction' },
-    { width: 7.0, height: 10.0, name: 'Non-fiction 3', category: 'Non-fiction' }
-  ],
-  memoir: [
-    { width: 5.25, height: 8.0, name: 'Memoir 1', category: 'Memoir' },
-    { width: 5.5, height: 8.5, name: 'Memoir 2', category: 'Memoir' }
-  ]
-};
+// Essential trim sizes only - we use 4 core sizes in the UI
+export const ESSENTIAL_TRIM_SIZES = [
+  { width: 4.25, height: 6.87, name: '4.25" × 6.87"', category: 'Fiction' },
+  { width: 5.0, height: 8.0, name: '5" × 8"', category: 'Fiction' },
+  { width: 6.0, height: 9.0, name: '6" × 9"', category: 'Fiction' },
+  { width: 8.5, height: 11.0, name: '8.5" × 11"', category: 'Textbook' }
+];
 
-// Flatten all presets for easy access
-export const ALL_PRESETS = Object.values(TRIM_SIZE_PRESETS).flat();
+// For backward compatibility with existing code
+export const ALL_PRESETS = ESSENTIAL_TRIM_SIZES;
 
 // Validation constants
 export const TRIM_SIZE_LIMITS = {
@@ -102,19 +80,6 @@ export const formatTrimSize = (width, height) => {
   return `${width}" × ${height}"`;
 };
 
-/**
- * Get all categories
- */
-export const getCategories = () => {
-  return Object.keys(TRIM_SIZE_PRESETS);
-};
-
-/**
- * Get presets for a specific category
- */
-export const getPresetsByCategory = (category) => {
-  return TRIM_SIZE_PRESETS[category] || [];
-};
 
 /**
  * Calculate spine width from image dimensions and trim size

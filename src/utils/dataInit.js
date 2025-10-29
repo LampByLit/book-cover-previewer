@@ -21,7 +21,7 @@ export const initializeDataSystem = async () => {
       throw new Error('Failed to initialize data directories');
     }
 
-    // Do not seed bundled covers; start clean with user uploads only
+    // Start clean with user uploads only
 
     console.log('✅ Data system initialized successfully');
     return true;
@@ -41,9 +41,7 @@ export const isDataSystemReady = () => {
 
     // Check if our storage keys exist
     const metadata = localStorage.getItem('bookCoverPreviewer_metadata');
-    const covers = localStorage.getItem('bookCoverPreviewer_covers');
-
-    return metadata !== null && covers !== null;
+    return metadata !== null;
   } catch (error) {
     return false;
   }
@@ -71,7 +69,7 @@ export const resetDataSystem = async () => {
 export const getDataSystemStatus = () => {
   return {
     ready: isDataSystemReady(),
-    storageType: 'localStorage', // Will be 'railway-volume' in production
+    storageType: 'localStorage',
     version: '1.0.0'
   };
 };

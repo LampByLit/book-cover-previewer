@@ -2,12 +2,8 @@
  * File System Abstraction Layer for BOOK COVER PREVIEWER
  *
  * Handles file operations for uploaded cover images and metadata.
- * Designed to work with Railway volume mounts at /data directory.
+ * Uses client-side storage (IndexedDB + localStorage) for optimal performance.
  */
-
-const DATA_DIR = '/data';
-const COVERS_DIR = `${DATA_DIR}/covers`;
-const METADATA_FILE = `${DATA_DIR}/metadata.json`;
 
 // IndexedDB configuration for storing uploaded image data
 const IDB_NAME = 'bookCoverPreviewerDB';
@@ -65,12 +61,10 @@ const idbDeleteCover = async (id) => {
 };
 
 /**
- * Ensure data directories exist
+ * Initialize client-side storage
  */
 export const ensureDataDirectories = async () => {
   try {
-    // For now, we'll use localStorage as a placeholder
-    // In production with Railway volumes, this will use actual file system
     if (typeof window !== 'undefined') {
       // Initialize localStorage structure
       if (!localStorage.getItem('bookCoverPreviewer_metadata')) {
@@ -82,7 +76,7 @@ export const ensureDataDirectories = async () => {
     }
     return true;
   } catch (error) {
-    console.error('Failed to initialize data directories:', error);
+    console.error('Failed to initialize storage:', error);
     return false;
   }
 };
@@ -95,7 +89,7 @@ export const generateFileId = () => {
 };
 
 /**
- * Save uploaded file (placeholder - will be replaced with actual file system)
+ * Save uploaded file to IndexedDB
  */
 export const saveUploadedFile = async (file, fileId) => {
   // Compress large images to reduce storage size

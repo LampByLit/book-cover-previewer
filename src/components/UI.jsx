@@ -5,19 +5,13 @@ import { getAllCovers, getCoverDisplayInfo, getCoverImageUrl, clearAllCovers } f
 import { clearAllFiles } from "../utils/fileSystem";
 import { useCoverImageUrl } from "../utils/useCoverImageUrl";
 
-// Automatically detect all images in the covers directory
-// Vite's import.meta.glob returns modules, we extract just the paths
-const coverModules = import.meta.glob('/public/covers/*.{png,jpg,jpeg,webp}', { eager: true, as: 'url' });
-const covers = Object.keys(coverModules)
-  .map(path => path.replace('/public/covers/', ''))
-  .sort(); // Sort alphabetically for consistent ordering
+// No bundled covers - all covers are user uploads
 
 export const coverAtom = atom(null); // Current selected cover ID
 export const bookOpenAtom = atom(false); // Book open/closed state
 export const sidebarVisibleAtom = atom(true); // Thumbnail sidebar visibility
 export const bleedEnabledAtom = atom(true); // Auto-enabled 0.125" bleed crop
 
-export { covers };
 
 export const UI = ({ experienceRef }) => {
   const [selectedCoverId, setSelectedCoverId] = useAtom(coverAtom);
