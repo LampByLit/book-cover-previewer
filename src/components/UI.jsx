@@ -213,18 +213,48 @@ export const UI = ({ experienceRef }) => {
                         try {
                           // Use async URL resolution directly
                           const url = await getCoverImageUrlByIdAsync(cover.id) || `/images/white.png`;
-                          const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
                           
-                          // Auto-refresh the new window after 1 second to ensure image loads
+                          // Create a proper HTML page with the image instead of just opening the data URL
+                          const htmlContent = `
+                            <!DOCTYPE html>
+                            <html>
+                            <head>
+                              <title>Full Image View</title>
+                              <style>
+                                body { 
+                                  margin: 0; 
+                                  padding: 20px; 
+                                  background: #f5f5f5; 
+                                  display: flex; 
+                                  justify-content: center; 
+                                  align-items: center; 
+                                  min-height: 100vh;
+                                }
+                                img { 
+                                  max-width: 100%; 
+                                  max-height: 100vh; 
+                                  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                                  border-radius: 8px;
+                                }
+                                .loading {
+                                  font-family: Arial, sans-serif;
+                                  color: #666;
+                                  text-align: center;
+                                }
+                              </style>
+                            </head>
+                            <body>
+                              <div class="loading">Loading image...</div>
+                              <img src="${url}" alt="Full size cover image" onload="this.style.display='block'; this.previousElementSibling.style.display='none';" style="display:none;" />
+                            </body>
+                            </html>
+                          `;
+                          
+                          // Open the HTML content in a new window
+                          const newWindow = window.open('', '_blank', 'noopener,noreferrer');
                           if (newWindow) {
-                            setTimeout(() => {
-                              try {
-                                newWindow.location.reload();
-                              } catch (error) {
-                                // Ignore cross-origin errors if the window is from a different domain
-                                console.log('Could not refresh window (likely cross-origin):', error.message);
-                              }
-                            }, 1000);
+                            newWindow.document.write(htmlContent);
+                            newWindow.document.close();
                           }
                         } catch (error) {
                           console.error('Failed to load image URL:', error);
