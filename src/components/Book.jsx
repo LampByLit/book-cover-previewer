@@ -68,41 +68,35 @@ export const Book = ({ ...props }) => {
   const coverTexture = useTexture(imageUrl || '/images/wawasensei-white.png');
   coverTexture.colorSpace = SRGBColorSpace;
 
-  // Calculate proper spine width from image dimensions
-  // Expected format: front cover + spine + back cover
-  const actualImageWidth = coverTexture.image?.width || imageWidth;
-  const actualImageHeight = coverTexture.image?.height || imageHeight;
-
-  // Use metadata-driven spine width (inches) and dpi when available
-  const dpi = coverData?.dpi || 300;
+  // Calculate spine width in inches (metadata or default), and convert to scene units for geometry depth
   const spineWidthInches = typeof coverData?.spineWidthInches === 'number' ? coverData.spineWidthInches : 0.842;
-  const spineWidthPx = Math.max(0, spineWidthInches * dpi);
   const actualSpineDepth = inchesToUnits(spineWidthInches);
 
-  // Clone textures for each surface with proper UV mapping
+  // Clone textures for each surface with proper UV mapping (inches-proportional)
   const frontTexture = coverTexture.clone();
   const spineTexture = coverTexture.clone();
   const backTexture = coverTexture.clone();
 
-  // UV mapping using pixel fractions without bleed compensation
-  // Compute front/back widths in pixels: remaining area split evenly
-  const frontWidthPx = Math.max(1, (actualImageWidth - spineWidthPx) / 2);
-  const backWidthPx = frontWidthPx;
+  // UV mapping using inches proportions (robust to image pixel dimensions/DPI/resizing)
+  // Assumes left-to-right layout: [front][spine][back]
+  const trimWidthInches = dimensions.trimSize.width;
+  const totalWidthInches = Math.max(0.0001, trimWidthInches * 2 + spineWidthInches);
+  const frontUVWidth = Math.max(0, Math.min(1, trimWidthInches / totalWidthInches));
+  const spineUVWidth = Math.max(0, Math.min(1, spineWidthInches / totalWidthInches));
+  const backUVWidth = frontUVWidth;
 
-  // Front (left section) maps exactly to its region
-  frontTexture.repeat.set(frontWidthPx / actualImageWidth, 1);
+  // Front (left section)
+  frontTexture.repeat.set(frontUVWidth, 1);
   frontTexture.offset.set(0, 0);
   frontTexture.needsUpdate = true;
 
   // Spine (middle section)
-  const spineUVWidth = Math.max(0, spineWidthPx / actualImageWidth);
   spineTexture.repeat.set(spineUVWidth, 1);
-  spineTexture.offset.set(frontWidthPx / actualImageWidth, 0);
+  spineTexture.offset.set(frontUVWidth, 0);
   spineTexture.needsUpdate = true;
 
   // Back (right section)
-  const backStartUV = (frontWidthPx + spineWidthPx) / actualImageWidth;
-  const backUVWidth = Math.max(0, backWidthPx / actualImageWidth);
+  const backStartUV = frontUVWidth + spineUVWidth;
   backTexture.repeat.set(backUVWidth, 1);
   backTexture.offset.set(backStartUV, 0);
   backTexture.needsUpdate = true;

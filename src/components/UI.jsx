@@ -1,7 +1,8 @@
 import { atom, useAtom } from "jotai";
 import { useEffect, useState } from "react";
 import { UploadComponent } from "./UploadComponent";
-import { getAllCovers, getCoverDisplayInfo, getCoverImageUrl } from "../utils/coverData";
+import { getAllCovers, getCoverDisplayInfo, getCoverImageUrl, clearAllCovers } from "../utils/coverData";
+import { clearAllFiles } from "../utils/fileSystem";
 import { useCoverImageUrl } from "../utils/useCoverImageUrl";
 
 // Automatically detect all images in the covers directory
@@ -52,6 +53,18 @@ export const UI = ({ experienceRef }) => {
   const handleUploadError = (error) => {
     console.error('Upload error:', error);
     // Could add toast notification here
+  };
+
+  const handleClearAll = async () => {
+    try {
+      setLoading(true);
+      await clearAllCovers();
+      await clearAllFiles();
+      setUploadedCovers([]);
+      setSelectedCoverId(null);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleNextCover = () => {
@@ -152,6 +165,19 @@ export const UI = ({ experienceRef }) => {
             onUploadSuccess={handleUploadSuccess}
             onUploadError={handleUploadError}
           />
+
+          {/* Manage Covers */}
+          <div className="mt-3 mb-5">
+            <button
+              onClick={handleClearAll}
+              className="w-full pointer-events-auto px-3 py-2 text-sm font-medium rounded-md bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 active:from-red-700 active:to-red-700 text-white shadow-md hover:shadow-lg active:shadow border border-red-500/50 disabled:opacity-60"
+              disabled={loading || uploadedCovers.length === 0}
+              title="Clear all uploaded covers"
+              aria-label="Clear all uploaded covers"
+            >
+              Clear All
+            </button>
+          </div>
 
           {/* Cover Thumbnails */}
           <div className="space-y-4">

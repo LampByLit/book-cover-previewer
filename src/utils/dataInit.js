@@ -21,32 +21,7 @@ export const initializeDataSystem = async () => {
       throw new Error('Failed to initialize data directories');
     }
 
-    // Seed bundled covers on first run
-    const existing = loadMetadata();
-    if (!Array.isArray(existing) || existing.length === 0) {
-      try {
-        const modules = import.meta.glob('/public/covers/*.{png,jpg,jpeg,webp}', { eager: true, as: 'url' });
-        const entries = Object.entries(modules).map(([path, url]) => {
-          const filename = path.replace('/public/covers/', '');
-          return {
-            id: `bundled_${filename}`,
-            filename,
-            originalName: filename,
-            externalUrl: url,
-            trimSize: { width: 5.0, height: 8.0 },
-            uploadedAt: new Date().toISOString(),
-            fileSize: 0,
-            source: 'bundled'
-          };
-        });
-        if (entries.length > 0) {
-          await saveMetadata(entries);
-          console.log(`Seeded ${entries.length} bundled covers`);
-        }
-      } catch (seedErr) {
-        console.warn('Bundled cover seeding skipped:', seedErr);
-      }
-    }
+    // Do not seed bundled covers; start clean with user uploads only
 
     console.log('✅ Data system initialized successfully');
     return true;
