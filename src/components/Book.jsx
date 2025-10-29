@@ -79,14 +79,14 @@ export const Book = ({ ...props }) => {
   const backTexture = coverTexture.clone();
 
   // UV mapping using inches proportions (robust to image pixel dimensions/resizing)
-  // Assumes left-to-right layout: [back][spine][front]
+  // Assumes left-to-right layout: [front][spine][back]
   const trimWidthInches = dimensions.trimSize.width;
   const trimHeightInches = dimensions.trimSize.height;
   const totalWidthInches = Math.max(0.0001, trimWidthInches * 2 + spineWidthInches);
   const sectionUVWidth = Math.max(0, Math.min(1, trimWidthInches / totalWidthInches));
   const spineUVWidth = Math.max(0, Math.min(1, spineWidthInches / totalWidthInches));
-  const backUVWidth = sectionUVWidth;
   const frontUVWidth = sectionUVWidth;
+  const backUVWidth = sectionUVWidth;
 
   // Optional bleed (crop outer edges): 0.125" on specified sides
   const bleedInches = bleedEnabled ? 0.125 : 0;
@@ -95,22 +95,22 @@ export const Book = ({ ...props }) => {
   const vRepeat = Math.max(0, (trimHeightInches - 2 * bleedInches) / trimHeightInches);
   const vOffset = Math.max(0, bleedInches / trimHeightInches);
 
-  // Horizontal crop per section (spread is [back][spine][front])
+  // Horizontal crop per section (spread is [front][spine][back])
   // NOTE: BoxGeometry face UVs mirror horizontally compared to atlas sections;
   // to achieve visual outside-edge cropping, we invert the side we crop in UV space.
-  // Visual goal: Back crops LEFT; Front crops RIGHT.
-  const backBaseOffset = 0;
-  // Back: crop visually LEFT -> in UV, crop RIGHT (shrink repeat, keep offset)
-  const backURepeat = Math.max(0, (trimWidthInches - bleedInches) / totalWidthInches);
-  const backUOffset = backBaseOffset;
-
-  const spineURepeat = spineUVWidth;
-  const spineUOffset = backUVWidth;
-
-  const frontBaseOffset = backUVWidth + spineUVWidth;
+  // Visual goal: Front crops RIGHT; Back crops LEFT.
+  const frontBaseOffset = 0;
   // Front: crop visually RIGHT -> in UV, crop LEFT (shift offset to the right)
   const frontURepeat = Math.max(0, (trimWidthInches - bleedInches) / totalWidthInches);
   const frontUOffset = frontBaseOffset + Math.max(0, bleedInches / totalWidthInches);
+
+  const spineURepeat = spineUVWidth;
+  const spineUOffset = frontUVWidth;
+
+  const backBaseOffset = frontUVWidth + spineUVWidth;
+  // Back: crop visually LEFT -> in UV, crop RIGHT (shrink repeat, keep base offset)
+  const backURepeat = Math.max(0, (trimWidthInches - bleedInches) / totalWidthInches);
+  const backUOffset = backBaseOffset;
 
   // Back (left section)
   backTexture.repeat.set(backURepeat, vRepeat);
