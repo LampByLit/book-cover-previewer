@@ -3,17 +3,31 @@ import { Canvas } from "@react-three/fiber";
 import { Suspense, useRef, useEffect } from "react";
 import { Experience } from "./components/Experience";
 import { UI } from "./components/UI";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { initializeDataSystem } from "./utils/dataInit";
 
 function App() {
   const experienceRef = useRef();
 
   useEffect(() => {
+    // Handle unhandled promise rejections
+    const handleUnhandledRejection = (event) => {
+      console.error('Unhandled promise rejection:', event.reason);
+      // Prevent the default browser error handling
+      event.preventDefault();
+    };
+
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+    
     initializeDataSystem();
+
+    return () => {
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+    };
   }, []);
 
   return (
-    <>
+    <ErrorBoundary>
       <UI experienceRef={experienceRef} />
       <Loader />
       <Canvas shadows camera={{
@@ -26,7 +40,7 @@ function App() {
           </Suspense>
         </group>
       </Canvas>
-    </>
+    </ErrorBoundary>
   );
 }
 

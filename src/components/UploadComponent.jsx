@@ -125,7 +125,21 @@ export const UploadComponent = ({ onUploadSuccess, onUploadError }) => {
       resetForm();
 
     } catch (error) {
-      setError(error.message);
+      // Provide more specific error messages
+      let errorMessage = error.message;
+      if (error.message.includes('Spine width is required')) {
+        errorMessage = 'Please enter a valid spine width or page count';
+      } else if (error.message.includes('File size must be less than 10MB')) {
+        errorMessage = 'File is too large. Please choose a smaller image (max 10MB)';
+      } else if (error.message.includes('File must be PNG, JPG, JPEG, or WebP')) {
+        errorMessage = 'Please choose a PNG, JPG, JPEG, or WebP image file';
+      } else if (error.message.includes('Failed to read file')) {
+        errorMessage = 'Could not read the file. Please try a different image';
+      } else if (error.message.includes('Failed to decode image')) {
+        errorMessage = 'The image file appears to be corrupted. Please try a different file';
+      }
+      
+      setError(errorMessage);
       if (onUploadError) {
         onUploadError(error);
       }

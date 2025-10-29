@@ -57,8 +57,10 @@ export const Book = ({ ...props }) => {
   // Resolve image URL (uploaded data URL via IndexedDB or bundled asset)
   const imageUrl = useCoverImageUrl(selectedCover);
 
-  // Load the selected cover texture
-  const coverTexture = useTexture(imageUrl || '/images/white.png');
+  // Load the selected cover texture with fallback
+  const coverTexture = useTexture(imageUrl || '/images/white.png', undefined, (error) => {
+    console.warn('Failed to load cover texture:', error);
+  });
   coverTexture.colorSpace = SRGBColorSpace;
 
   // Calculate spine width in inches (metadata or default), and convert to scene units for geometry depth
