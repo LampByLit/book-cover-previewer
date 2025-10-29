@@ -5,8 +5,10 @@
  */
 
 import { useState, useRef, useCallback } from 'react';
+import { useAtom } from 'jotai';
 import { validateFile } from '../utils/fileSystem';
 import { addCover } from '../utils/coverData';
+import { bleedEnabledAtom } from './UI';
 
 export const UploadComponent = ({ onUploadSuccess, onUploadError }) => {
   const [isDragOver, setIsDragOver] = useState(false);
@@ -18,6 +20,7 @@ export const UploadComponent = ({ onUploadSuccess, onUploadError }) => {
   const [spineWidthInches, setSpineWidthInches] = useState('');
   const [pageCount, setPageCount] = useState('');
   const [error, setError] = useState(null);
+  const [bleedEnabled, setBleedEnabled] = useAtom(bleedEnabledAtom);
   const fileInputRef = useRef(null);
 
   // Handle drag events
