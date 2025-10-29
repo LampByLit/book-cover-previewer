@@ -96,19 +96,21 @@ export const Book = ({ ...props }) => {
   const vOffset = Math.max(0, bleedInches / trimHeightInches);
 
   // Horizontal crop per section (spread is [back][spine][front])
-  // - Back (left section): crop left outer edge by bleedInches
-  // - Spine (middle): unchanged horizontally
-  // - Front (right section): crop right outer edge by bleedInches
+  // NOTE: BoxGeometry face UVs mirror horizontally compared to atlas sections;
+  // to achieve visual outside-edge cropping, we invert the side we crop in UV space.
+  // Visual goal: Back crops LEFT; Front crops RIGHT.
   const backBaseOffset = 0;
+  // Back: crop visually LEFT -> in UV, crop RIGHT (shrink repeat, keep offset)
   const backURepeat = Math.max(0, (trimWidthInches - bleedInches) / totalWidthInches);
-  const backUOffset = backBaseOffset + Math.max(0, bleedInches / totalWidthInches);
+  const backUOffset = backBaseOffset;
 
   const spineURepeat = spineUVWidth;
   const spineUOffset = backUVWidth;
 
   const frontBaseOffset = backUVWidth + spineUVWidth;
+  // Front: crop visually RIGHT -> in UV, crop LEFT (shift offset to the right)
   const frontURepeat = Math.max(0, (trimWidthInches - bleedInches) / totalWidthInches);
-  const frontUOffset = frontBaseOffset; // cropping right: shrink repeat anchored at base
+  const frontUOffset = frontBaseOffset + Math.max(0, bleedInches / totalWidthInches);
 
   // Back (left section)
   backTexture.repeat.set(backURepeat, vRepeat);
