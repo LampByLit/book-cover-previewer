@@ -170,6 +170,21 @@ export const UploadComponent = ({ onUploadSuccess, onUploadError }) => {
     <div className="p-4 border-b border-gray-200 bg-white">
       <h3 className="text-lg font-semibold mb-4 text-gray-800">Upload Cover Art</h3>
 
+      {/* Bleed toggle */}
+      <div className="mb-4 flex items-center justify-between">
+        <label className="text-sm text-gray-700 select-none" htmlFor="bleed-toggle">
+          Apply 0.125" bleed
+        </label>
+        <input
+          id="bleed-toggle"
+          type="checkbox"
+          checked={bleedEnabled}
+          onChange={(e) => setBleedEnabled(e.target.checked)}
+          className="h-4 w-4"
+          disabled={isUploading}
+        />
+      </div>
+
       {/* Trim Size Selection */}
       <div className="mb-4">
         <label className="block text-sm font-medium text-gray-700 mb-2">
