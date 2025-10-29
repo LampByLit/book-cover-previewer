@@ -229,22 +229,30 @@ export const UI = ({ experienceRef }) => {
                       onClick={async (e) => {
                         e.stopPropagation(); // Prevent triggering cover change
                         try {
+                          console.log('View full image clicked for cover:', cover);
+                          
                           // First try synchronous URL (for external URLs)
                           const syncUrl = getCoverImageUrl(cover);
+                          console.log('Sync URL:', syncUrl);
                           if (syncUrl) {
+                            console.log('Opening sync URL:', syncUrl);
                             window.open(syncUrl, '_blank', 'noopener,noreferrer');
                             return;
                           }
                           
                           // For uploaded covers, fetch the async URL
                           if (cover?.id) {
+                            console.log('Fetching async URL for ID:', cover.id);
                             const asyncUrl = await getCoverImageUrlByIdAsync(cover.id);
+                            console.log('Async URL:', asyncUrl);
                             if (asyncUrl) {
+                              console.log('Opening async URL:', asyncUrl);
                               window.open(asyncUrl, '_blank', 'noopener,noreferrer');
                               return;
                             }
                           }
                           
+                          console.log('No URL found, using fallback');
                           // Fallback to default image
                           window.open('/images/wawasensei-white.png', '_blank', 'noopener,noreferrer');
                         } catch (error) {
