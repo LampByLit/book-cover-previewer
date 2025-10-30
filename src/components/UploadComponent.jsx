@@ -197,7 +197,7 @@ export const UploadComponent = ({ onUploadSuccess, onUploadError }) => {
           type="checkbox"
           checked={bleedEnabled}
           onChange={(e) => setBleedEnabled(e.target.checked)}
-          className="h-4 w-4"
+          className="h-4 w-4 bg-white appearance-none checked:bg-blue-600 checked:border-blue-600 border-2 border-gray-300 rounded"
           disabled={isUploading}
         />
       </div>
@@ -219,7 +219,7 @@ export const UploadComponent = ({ onUploadSuccess, onUploadError }) => {
                 selectedTrimSize.width === size.width &&
                 selectedTrimSize.height === size.height
                   ? 'border-blue-500 bg-blue-50 text-blue-700'
-                  : 'border-gray-300 hover:border-gray-400'
+                  : 'border-gray-300 hover:border-gray-400 text-gray-800 bg-white'
               }`}
               disabled={isUploading}
             >
@@ -235,7 +235,7 @@ export const UploadComponent = ({ onUploadSuccess, onUploadError }) => {
             id="custom-size"
             checked={useCustomSize}
             onChange={(e) => setUseCustomSize(e.target.checked)}
-            className="mr-2"
+            className="mr-2 h-4 w-4 bg-white appearance-none checked:bg-blue-600 checked:border-blue-600 border-2 border-gray-300 rounded"
             disabled={isUploading}
           />
           <label htmlFor="custom-size" className="text-sm text-gray-700">
@@ -255,7 +255,7 @@ export const UploadComponent = ({ onUploadSuccess, onUploadError }) => {
                 max="20"
                 value={customTrimSize.width}
                 onChange={(e) => handleCustomTrimSizeChange('width', e.target.value)}
-                className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md"
+                className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md bg-white text-gray-900 appearance-none"
                 placeholder="5.0"
                 disabled={isUploading}
               />
@@ -269,7 +269,7 @@ export const UploadComponent = ({ onUploadSuccess, onUploadError }) => {
                 max="20"
                 value={customTrimSize.height}
                 onChange={(e) => handleCustomTrimSizeChange('height', e.target.value)}
-                className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md"
+                className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md bg-white text-gray-900 appearance-none"
                 placeholder="8.0"
                 disabled={isUploading}
               />
@@ -297,7 +297,7 @@ export const UploadComponent = ({ onUploadSuccess, onUploadError }) => {
                 setSpineWidthInches(computed);
               }
             }}
-            className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md"
+            className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md bg-white text-gray-900 appearance-none"
             placeholder="e.g. 217"
             disabled={isUploading}
           />
@@ -311,7 +311,7 @@ export const UploadComponent = ({ onUploadSuccess, onUploadError }) => {
             max="5"
             value={spineWidthInches}
             onChange={(e) => setSpineWidthInches(e.target.value)}
-            className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md"
+            className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md bg-white text-gray-900 appearance-none"
             placeholder="e.g. 0.543"
             disabled={isUploading}
             required
