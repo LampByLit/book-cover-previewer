@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://book-cover-previewer.up.railway.app/sitemap.xml
+
